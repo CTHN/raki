@@ -1,0 +1,167 @@
+
+
+#controls a {
+    border: 1px solid #cccccc;
+    display: block;
+    float: left;
+    margin-left: -1px;
+    padding: 0.3em 0.6em;
+    background-color: #f5f5f5;
+    text-decoration: none;
+    color: #000000;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+
+
+textarea {
+    width: 100% !important;
+    font: 1.1em/1.5em Monaco, "Courier New", Courier, monospace;
+}
+
+#preview {
+    border: 1px solid #cccccc;
+    margin: 0 0.5em;
+    padding: 1em 1em;
+}
+
+#revisions {
+    table-layout: auto;
+    border-bottom: 1px solid #cccccc;
+    border-right: 1px solid #cccccc;
+}
+
+#revisions th {
+    background-color: #e5e5e5;
+    height: 2em;
+    padding: 0 1em;
+    border-top: 1px solid #cccccc;
+    border-left: 1px solid #cccccc;
+}
+
+#revisions td {
+    padding: 0 1em;
+    height: 1.5em;
+    border-top: 1px solid #cccccc;
+    border-left: 1px solid #cccccc;
+}
+
+#revisions td.version {
+    text-align: center;
+}
+
+#revisions td.diff {
+	width: 10px;
+	padding: 0;
+	text-align: center;
+}
+
+#revisions tr.odd {
+
+}
+
+#revisions tr.even {
+    background-color: #f5f5f5;
+}
+
+#login {
+    margin: 0 auto;
+    width: 25em;
+}
+
+#login label {
+    width: 12em;
+    height: 2.5em;
+    display: inline-block;
+    font-weight: bold;
+}
+
+#login input[type=submit] {
+    margin-left: 13.5em;
+}
+
+.information, .warning, .error, .confirmation {
+    display: block;
+    margin: 1em 0;
+    padding: 1em 1em 1em 3em;
+    background-position: .8em .9em;
+    background-repeat: no-repeat;
+}
+
+.information {
+    background-image: url(../images/information.png);
+    background-color: #e0e0ff;
+    border: 1px solid #b0b0f0;
+}
+
+.error {
+    background-image: url(../images/error.png);
+    background-color: #ffe0e0;
+    border: 1px solid #f0b0b0;
+}
+
+.warning {
+    background-image: url(../images/warning.png);
+    background-color: #ffff96;
+    border: 1px solid #f0f087;
+}
+
+.confirmation {
+    background-image: url(../images/confirmation.png);
+    background-color: #c8ff96;
+    border: 1px solid #b9f087;
+}
+
+.underline {
+    text-decoration: underline;
+}
+
+ul.line {
+    list-style-type:square;
+}
+
+table.wikitable {
+    margin: 0.5em 0.25em;
+    border-collapse: collapse;
+    border-spacing: 0;
+    empty-cells: show;
+}
+
+table.wikitable th {
+    border: 1px solid #dadada;
+    background-color: #eaeaea;
+    padding: 0.25em 0.5em;
+}
+
+table.wikitable td {
+    border: 1px solid #dadada;
+    padding: 0.25em 0.5em;
+}
+
+table.diff {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+table.diff td.linenumber {
+	width: 2em;
+}
+
+table.diff td.line {
+	font-family: monospace;
+	font-size: 1.2em;
+	padding: 0.2em 0.5em;
+	height: 1.4em;
+	margin: 10px;
+	background-color: #f5f5f5;
+}
+
+table.diff td.add {
+	background-color: #ccffcc;
+}
+
+table.diff td.remove {
+	background-color: #ffcccc;
+}
+

@@ -7,6 +7,11 @@
     <input type="submit" value="<%=t 'page.info.rename' %>" />
   </div>
 <% $end %>
+
+  <div>
+    <textarea name="content"><%=@content %></textarea>
+  </div>
+
 <input type="button" value="<%=t 'page.info.delete' %>" onclick="javascript:location.href='<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'delete' %>';" />
 <br/>
 <form id="edit-form" action="<%=url_for :controller => 'page', :type => h(@type), :id => h(@page), :action => 'update' %>" method="post" accept-charset="UTF-8">
@@ -18,9 +23,6 @@
   <div>
     <label for="page-message"><%=t 'page.edit.message' %></label>
     <input type="text" id="page-message" name="message" />
-  </div>
-  <div>
-    <textarea name="content" cols="100" rows="25"><%=@content %></textarea>
   </div>
 <% $end %>
 <% unless @preview.nil? %>

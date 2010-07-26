@@ -1,50 +1,80 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta name="generator" content="Raki wiki engine"/>
     <title><%=h "#{Raki.app_name} :: #{@title}" %></title>
-    <%=stylesheet_link_tag 'application', :media => 'all' %>
-    <%=plugin_stylesheets %>
+
+    <%= stylesheet_link_tag 'screen', :media => 'all' %>
+    <%= stylesheet_link_tag 'print', :media => 'print' %>
+    <%= stylesheet_link_tag 'raki', :media => 'all' %>
+    <%= stylesheet_link_tag 'application', :media => 'all' %>
+		<!--[if lt IE 8]><%= stylesheet_link_tag 'ie', :media => 'all' %><![endif]-->
+    <%= plugin_stylesheets %>
+
     <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
-  </head>
-  <body>
-    <div id="container">
-      <div id="left">
-        <div id="logo">
-          <%=link_to image_tag('raki_logo.png', :alt => 'Raki'), :controller => 'page', :action => 'redirect_to_frontpage' %>
-        </div>
-        <div id="left_menu">
-          <%=insert_page :page, 'LeftMenu' %>
-        </div>
-        <div id="left_menu_footer">
-          <%=insert_page :page, 'LeftMenuFooter' %>
-        </div>
-        <div id="application_info">
-          <div id="global_feed">
-            <%=link_to image_tag('feed.png', :alt => 'Feed'), { :controller => 'feed', :action => 'feed'}, {:title => t('feed', :app_name => Raki.app_name), :class => 'feed'} %>
-            <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'feed'}, :title => t('feed', :app_name => Raki.app_name)) %>
-          </div>
-          Raki v<%=Raki.version %>
-        </div>
-      </div>
-      <div id="main">
-        <div id="auth">
-          <%=render :partial => 'layouts/auth' %>
-        </div>
-        <div id="page_title"><%=h @title %></div>
-        <div id="content_container">
-          <div id="controls">
-            <%=render :partial => "#{controller_name}/tabs" %>
-          </div>
-          <div id="page">
-            <%=yield %>
-          </div>
-          <%=render :partial => "layouts/page_footer" %>
-          </div>
-        </div>
-        <br class="clear" />
-      </div>
-    </body>
-  </html>
+	</head>
+
+	<body>
+    <%= image_tag('cables.png', :alt => 'cables', :id => 'cables') %>
+    <%= link_to image_tag('logo.png', :alt => 'cthn logo'), {:controller => 'page', :action => 'redirect_to_frontpage'}, :id => 'logo' %>
+    <%= link_to image_tag('rss.png', :alt => 'Feed'), {:controller => 'feed', :action => 'feed'}, {:title => t('feed', :app_name => Raki.app_name), :id => 'rss'} %>
+    <%= auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'feed'}, :title => t('feed', :app_name => Raki.app_name)) %>
+
+    <nav id="header">
+      <%= render :partial => "#{controller_name}/tabs" %>
+      <%= render :partial => 'layouts/auth' %>
+		</nav>
+
+		<div id="content">
+      <div class="canvas">
+        <!-- TODO: This navigation is static. Should this also generated with the
+                   wiki syntax and a wiki page? Problem: the "first" and "selected"
+                   class identifier -->
+        <!-- TODO: Mark active page -->
+				<nav id="navigation">
+					<ul>
+						<li class="first"><a href="/page/cthn"><span>Über den cthn</span></a></li>
+						<li><a href="/page/Ziele"><span>Ziele</span></a></li>
+						<li class="last"><a href="/page/Mitglieder"><span>Mitglieder</span></a></li>
+					</ul>
+
+					<ul>
+						<li class="first selected"><a href="/page/Treffen"><span>Treffen & Battles</span></a></li>
+						<li><a href="/page/Veranstaltungen"><span>Veranstaltungen</span></a></li>
+						<li><a href="/page/Projekte"><span>Projekte</span></a></li>
+						<li><a href="/page/Kontakt"><span>Mailingliste & Kontakt</span></a></li>
+						<li class="last"><a href="/page/Impressum"><span>Impressum</span></a></li>
+					</ul>
+
+					<ul>
+						<li class="first last"><a href="#"><span>Suche</span></a></li>
+					</ul>
+					<br /><br />
+
+					<ul>
+						<li class="first"><a href="#"><span>Letzte Änderungen</span></a></li>
+						<li class="last"><a href="#"><span>Alle Seiten</span></a></li>
+					</ul>
+        </nav>
+
+        <!-- TODO: Make this dynamic -->
+        <%= image_tag('header/2m.png', :alt => 'header image', :id => 'headerimage') %>
+        <article>
+          <h1><%= h @title %></h1>
+          <%= yield %>
+				</article>
+
+				<span class="clearfix"></span>
+			</div>
+		</div>
+
+    <section id="footer">
+      <%= render :partial => "layouts/page_footer" %>
+		</section>
+	</body>
+</html>
+
