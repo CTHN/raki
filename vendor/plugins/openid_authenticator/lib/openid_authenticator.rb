@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 require 'rubygems'
 require 'openid'
 require 'openid/store/filesystem'
+require 'openid/extensions/sreg'
+require 'openid/extensions/ax'
 
 class OpenIDAuthenticator < Raki::AbstractAuthenticator
 
@@ -24,25 +26,51 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
     openid = params[:openid]
     begin
       request = openid_consumer(session).begin(openid)
-      request.add_extension_arg('sreg', 'required', 'nickname,email')
-      return request.redirect_url(url_for(''), url_for(:controller => 'authentication', :action => 'callback'))
-    rescue => e
-      p e.message
-      e.backtrace.each do |se|
-        p se
+      sreg = OpenID::SReg::Request.new
+      sreg.request_fields(['email','nickname'], true)
+      request.add_extension(sreg)
+      ax = OpenID::AX::FetchRequest.new
+      ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/contact/email', 'email', true))
+      if openid =~ /google\.com\//
+        ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/namePerson/first', 'firstname', true))
+        ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/namePerson/last', 'lastname', true))
+      else
+        ax.add(OpenID::AX::AttrInfo.new('http://axschema.org/namePerson/friendly', 'nickname', true))
       end
-      raise AuthenticatorError.new("Unable to authenticate: #{openid}")
+      request.add_extension(ax)
+      return request.redirect_url(
+          url_for(:controller => 'page', :action => 'redirect_to_frontpage', :only_path => false),
+          url_for(:controller => 'authentication', :action => 'callback', :only_path => false)
+        )
+    rescue => e
+      raise AuthenticatorError.new(t 'auth.openid.unable_to_authenticate', :openid => h(openid))
     end
   end
 
   def callback(params, session, cookies)
-    response = openid_consumer(session).complete(params, url_for(:controller => 'authentication', :action => 'callback'))
-    if response.status == :success
-      raise AuthenticatorError.new("Nickname or email missing") if params['openid.sreg.nickname'].nil? || params['openid.sreg.email'].nil?
-      user = User.new
-      user.username = params['openid.sreg.nickname']
-      user.email = params['openid.sreg.email']
-      return user
+    begin
+      response = openid_consumer(session).complete(params, url_for(:controller => 'authentication', :action => 'callback', :only_path => false))
+    rescue => e
+      raise AuthenticatorError.new(t 'auth.openid.invalid_response')
+    end
+    case response.status
+      when OpenID::Consumer::FAILURE
+        raise AuthenticatorError.new(t 'auth.openid.verification_failed')
+      when OpenID::Consumer::SUCCESS
+        nickname, email = parse_sreg_response(response)
+        if nickname.nil? || email.nil?
+          nickname2, email2 = parse_ax_response(response)
+          nickname = nickname2 if nickname.nil?
+          email = email2 if email.nil?
+        end
+        raise AuthenticatorError.new(t 'auth.openid.nickname_email_missing') if nickname.nil? || email.nil?
+        return User.new(nickname, email)
+      when OpenID::Consumer::SETUP_NEEDED
+        raise AuthenticatorError.new(t 'auth.openid.setup_needed')
+      when OpenID::Consumer::CANCEL
+        raise AuthenticatorError.new(t 'auth.openid.transaction_cancelled')
+      else
+        raise AuthenticatorError.new(t 'auth.openid.invalid_response')
     end
     nil
   end
@@ -52,7 +80,7 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
       {
         :name => 'openid',
         :type => 'text',
-        :title => 'auth.openid'
+        :title => t('auth.openid.label')
       }
     ]
   end
@@ -65,6 +93,23 @@ class OpenIDAuthenticator < Raki::AbstractAuthenticator
       OpenID::Store::Filesystem.new("#{RAILS_ROOT}/tmp/openid")
     ) if @openid_consumer.nil?
     @openid_consumer
+  end
+  
+  def parse_sreg_response(response)
+    sreg = OpenID::SReg::Response.from_success_response(response)
+    return sreg.data['nickname'], sreg.data['email']
+  end
+  
+  def parse_ax_response(response)
+    ax = OpenID::AX::FetchResponse.from_success_response(response)
+    nickname = ax.data['http://axschema.org/namePerson/friendly'].first
+    if nickname.nil? && !ax.data['http://axschema.org/namePerson/first'].first.nil?
+      nickname = ax.data['http://axschema.org/namePerson/first'].first
+      unless ax.data['http://axschema.org/namePerson/last'].first.nil?
+        nickname += " #{ax.data['http://axschema.org/namePerson/last'].first}"
+      end
+    end
+    return nickname, ax.data['http://axschema.org/contact/email'].first
   end
 
 end

@@ -1,11 +1,10 @@
 <p>
   <% unless @page_info.nil? %>
-    Letzte Änderung von <%= link_to(@page_info[:user], :controller => 'page', :action => 'view', :type => :user, :id => h(@page_info[:user])) %> am <%= l(@page_info[:date], :format => :full) %> - dies ist Version <strong><%= h(@page_info[:version]) %></strong>.<br />
+    Letzte Änderung von <%= link_to(@page_info[:user].username, :controller => 'page', :action => 'view', :type => Raki.userpage_type, :id => h(@page_info[:user].username)) %> am <%=  l(@page_info[:date], :format => :full) %> - dies ist Version <strong><%=  h(@page_info[:version]) %></strong>.<br />
   <% end %>
 
   <% if !@type.nil? && !@page.nil? %>
     Diese Seite als <%=link_to "RSS-Feed", {:controller => 'page', :action => 'view', :format => 'atom', :type => h(@type), :id => h(@page) }, {:title => t('page.feed', :type => h(@type), :page => h(@page))} %> abbonieren.<br />
-    <%=auto_discovery_link_tag(:rss, {:controller => 'page', :action => 'view', :format => 'atom', :type => h(@type), :id => h(@page)}, :title => t('page.feed', :type => h(@type), :page => h(@page))) %>
   <% end %>
 
   Diese Seite wurde von <a href="#">Raki, Version <%= Raki.version %></a> - einem Wiki auf git-Basis - generiert. Mehr Informationen dazu unter Projekte/Wiki.

@@ -27,29 +27,12 @@ Raki::Plugin.register :recentchanges do
   include RecentchangesPluginHelper
 
   execute do
-    types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
+    @types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
+    @types = provider_types if params[:type] == 'all'
     
-    days = days_changes types
-
-    out = ""
+    @days_changes = days_changes @types
     
-    days.each do |day, changes|
-      
-      out += "<tr><th>#{l Time.parse(day), :format => :date}</th><th></th><th></th><th></th></tr>"
-      changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
-      changes.each do |change|
-        out += "<tr>"
-        out += "<td><a href=\"#{url_for :controller => 'page', :action => 'view', :type => change.type, :id => h(change.page), :revision => h(change.revision.id)}\">#{h types.length == 1 ? change.page : "#{change.type}/#{change.page}"}</a></td>" if change.attachment.nil?
-        out += "<td><a href=\"#{url_for :controller => 'page', :action => 'attachment', :type => change.type, :id => h(change.page), :attachment => h(change.attachment), :revision => h(change.revision.id)}\">#{h types.length == 1 ? "#{change.page}/#{change.attachment}" : "#{change.type}/#{change.page}/#{change.attachment}"}</a></td>" unless change.attachment.nil?
-        out += "<td>#{l change.revision.date, :format => :time}</td>"
-        out += "<td><a href=\"#{url_for :controller => 'page', :action => 'view', :type => :user, :id => h(change.revision.user)}\">#{h change.revision.user}</a></td>"
-        out += "<td>#{h change.revision.message}</td>"
-        out += "</tr>"
-      end
-      
-    end
-    
-    "<table cellpadding=\"0\" cellspacing=\"0\" class=\"recentchanges\">#{out}</table>"
+    render :recentchanges
   end
 
 end

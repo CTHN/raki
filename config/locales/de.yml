@@ -1,4 +1,4 @@
-en:
+de:
 
   time:
     formats:
@@ -15,6 +15,7 @@ en:
     password: Passwort
     login: Login
     invalid_credentials: Falsche Zugangsdaten
+    logged_out: Ausgeloggt
 
   authinfo:
     login: Login
@@ -75,7 +76,9 @@ en:
     info:
         versions: Versionen
 
+  parser:
+    parsing_error: Parsen der Seite schlug fehl
+
   plugin:
     error: Plugin '%{name}' gab einen Fehler aus.
     missing_parameter: Fehlende Parameter
-

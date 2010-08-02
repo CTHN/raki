@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,17 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class Setup < ActiveRecord::Migration
-  def self.up
-    create_table :users, :id => false do |t|
-      t.string :username, :primary => true
-      t.string :email, :unique => true, :null => false
-      t.timestamp :last_login
-      t.timestamp :created_at
+module Raki
+  module PluginHelpers
+    
+    def url?(url)
+      !(url.match "^[a-zA-Z]+:\/\/(.+(:.+)?@)?[a-zA-Z0-9_-](\.[a-zA-Z0-9_-])*(:[0-9]+)?/").nil?
     end
-  end
-
-  def self.down
-    drop_table :users
+    
   end
 end

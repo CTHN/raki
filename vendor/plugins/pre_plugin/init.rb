@@ -14,6 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'openid_authenticator'
+Raki::Plugin.register :pre do
 
-Raki.register_authenticator(:openid, OpenIDAuthenticator)
+  name 'Pre_Plugin'
+  description 'Plugin for preformatted text'
+  url 'http://github.com/ydkn/raki'
+  author 'Martin Sigloch'
+  version '0.1'
+
+  execute do
+    "<pre>#{h body}</pre>"
+  end
+
+end

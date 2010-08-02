@@ -15,6 +15,7 @@ en:
     password: Password
     login: Login
     invalid_credentials: Invalid credentials
+    logged_out: Logged out
 
   authinfo:
     login: Login
@@ -74,6 +75,8 @@ en:
 
     info:
         versions: Versions
+  parser:
+    parsing_error: Parsing Error
 
   plugin:
     error: Plugin '%{name}' caused error
