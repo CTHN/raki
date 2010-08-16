@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,23 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'test_helper'
+module Raki
+  module Helpers
+    
+    module PluginHelper
+      
+      def url?(url)
+        !(url.to_s.match "^[a-zA-Z]+:\/\/(.+(:.+)?@)?[a-zA-Z0-9_-](\.[a-zA-Z0-9_-])*(:[0-9]+)?/").nil?
+      end
 
-class DBAuthenticatorTest < Test::Unit::TestCase
-
-  def setup
-    @authenticator = DBAuthenticator.new
+    end
+    
   end
-
-  # Try to authenticate user
-  def test_auth
-    user = User.new
-    user.username = 'user1'
-    user.email = 'user1@dom.org'
-    user.password = 'passwd'
-    user.save
-    assert @authenticator.login('user1', 'passwd')
-    user.destroy
-  end
-
 end

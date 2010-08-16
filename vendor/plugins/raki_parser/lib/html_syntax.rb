@@ -16,6 +16,8 @@
 
 module HTMLSyntax
   
+  include ERB::Util
+  
   def to_html context
     output = ''
     unless elements.nil?

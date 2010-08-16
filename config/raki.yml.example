@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,16 +18,19 @@
 
 app_name: Raki
 
-frontpage: Main
+frontpage: page/Main
 userpage_type: user
+index_page: Main
 
 providers:
   default:
     provider: git
     path: /path/to/git/repo
+    branch: master
+    refresh: 600
 
 parsers:
   default:
     parser: raki
 
-authenticator: db
+authenticator: openid

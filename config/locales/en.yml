@@ -20,12 +20,15 @@ en:
   authinfo:
     login: Login
     logout: Logout
+    
+  forbidden: Permission denied
 
   feed: Feed for %{app_name}
 
   page:
 
     footer: "%{user} changed this page on %{date}. This is version %{version}."
+    
     not_exists:
       msg: This Page does not exsist.
       edit_msg: You can %{edit_link} it!
@@ -42,6 +45,10 @@ en:
       preview: Preview
       abort: Abort
       message: Comment
+      rename: Rename Page
+      delete: Remove entire Page
+      page_already_exists: Page already exists
+      no_permission_to_create: No Permission to create page
 
     info:
       versions: Versions
@@ -52,9 +59,6 @@ en:
         user: Author
         message: Comment
       diff: Diff
-      rename: Rename Page
-      delete: Remove entire Page
-      page_already_exists: Page already exists
 
     feed: Feed for %{type}/%{page}
 
@@ -67,6 +71,9 @@ en:
     date: Date
     user: Author
     message: Comment
+    actions: Actions
+    
+    delete: Delete
 
     upload:
       file: File

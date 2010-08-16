@@ -14,12 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'raki/permission'
+require 'raki/provider'
+require 'raki/parser'
+require 'raki/authenticator'
+require 'raki/plugin'
+
 module Raki
+  
+  class RakiError < StandardError
+  end
+  
   class << self
-
-    class RakiError < StandardError
-    end
-
+    
+    VERSION_MAJOR = 0
+    VERSION_MINOR = 1
+    VERSION_TINY  = '0a'
+    
     def config(*keys)
       @config = YAML.load(File.read("#{Rails.root}/config/raki.yml")) if @config.nil?
       requested_config = @config
@@ -30,93 +41,56 @@ module Raki
       end
       requested_config
     end
-
-    def frontpage
-      return config(:frontpage) unless config(:frontpage).nil?
-      'Main'
-    end
-
+    
     def app_name
       return config(:app_name) unless config(:frontpage).nil?
       'Raki'
     end
-
+    
+    def frontpage
+      return {:type => 'page', :page => 'Main'} if config(:frontpage).nil?
+      parts = config(:frontpage).split('/', 2)
+      if parts.length == 2
+        {:type => parts[0], :page => parts[1]}
+      else
+        {:type => 'page', :page => parts[0]}
+      end
+    end
+    
     def userpage_type
       return config(:userpage_type) unless config(:userpage_type).nil?
       'user'
     end
-
+    
+    def index_page
+      return config(:index_page) unless config(:index_page).nil?
+      'Main'
+    end
+    
     def version
-      '0.1pre'
+      version = [VERSION_MAJOR, VERSION_MINOR, VERSION_TINY].compact.join('.')
+      "#{version}@#{REVISION}" unless REVISION.nil?
     end
-
-    def register_provider(id, clazz)
-      @providers = {} if @providers.nil?
-      @providers[id] = clazz
-    end
-
-    def providers
-      @providers
-    end
-
-    def provider(type)
-      @initialized_providers = {} if @initialized_providers.nil?
-      if @initialized_providers.key?(type)
-        return @initialized_providers[type]
-      elsif !config('providers', type.to_s).nil?
-        id = config('providers', type.to_s)['provider']
-        @initialized_providers[type] = @providers[id.to_sym].new(config('providers', type.to_s))
-      elsif !config('providers', 'default').nil?
-        id = config('providers', 'default')['provider']
-        @initialized_providers[type] = @providers[id.to_sym].new(config('providers', 'default'))
-      else
-        raise RakiError.new("No Provider")
+    
+    def self.revision
+      revision = nil
+      begin
+        if File.readable?("#{Rails.root}/.git/HEAD")
+          f = File.open("#{Rails.root}/.git/HEAD", 'r')
+          head = f.read.split(':')[1].strip
+          f.close
+          if File.readable?("#{Rails.root}/.git/#{head}")
+            f = File.open("#{Rails.root}/.git/#{head}", 'r')
+            revision = f.read[0..7].upcase
+            f.close
+          end
+        end
+      rescue
       end
-      @initialized_providers[type]
+      revision
     end
-
-    def register_parser(id, clazz)
-      @parsers = {} if @parsers.nil?
-      @parsers[id] = clazz
-    end
-
-    def parsers
-      @parsers
-    end
-
-    def parser(type)
-      @initialized_parsers = {} if @initialized_parsers.nil?
-      if @initialized_parsers.key?(type)
-        return @initialized_parsers[type]
-      elsif !config('parsers', type.to_s).nil?
-        id = config('parsers', type.to_s)['parser']
-        @initialized_parsers[type] = @parsers[id.to_sym].new(config('parsers', type.to_s))
-      elsif !config('parsers', 'default').nil?
-        id = config('parsers', 'default')['parser']
-        @initialized_parsers[type] = @parsers[id.to_sym].new(config('parsers', 'default'))
-      else
-        raise RakiError.new("No Parser")
-      end
-      @initialized_parsers[type]
-    end
-
-    def register_authenticator(id, clazz)
-      @authenticators = {} if @authenticators.nil?
-      @authenticators[id] = clazz
-    end
-
-    def authenticators
-      @authenticators
-    end
-
-    def authenticator
-      if @authenticator.nil?
-        id = config('authenticator')
-        raise RakiError.new("No Authenticator") if id.nil?
-        @authenticator = @authenticators[id.to_sym].new
-      end
-      @authenticator
-    end
+    
+    REVISION = self.revision
 
   end
 end

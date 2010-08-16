@@ -14,18 +14,40 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class SetupDbauth < ActiveRecord::Migration
-  def self.up
-    create_table :users, :id => false do |t|
-      t.string :username, :primary => true
-      t.string :password
-      t.string :email, :unique => true, :null => false
-      t.timestamp :last_login
-      t.timestamp :created_at
-    end
-  end
+module Raki
+  class Parser
+    
+    @parsers = {}
+    @initialized = {}
+    
+    class << self
+      
+      def register(id, clazz)
+        @parsers[id.to_sym] = clazz
+        Raki.config('parsers').each do |type, settings|
+          if settings['parser'] == id.to_s
+            @initialized[type.to_sym] = clazz.new(settings)
+          end
+        end
+      end
 
-  def self.down
-    drop_table :users
+      def [](type)
+        type = type.to_sym
+        unless @initialized.key?(type)
+          return @initialized[:default] if @initialized.key?(:default)
+          raise RakiError.new("No Parser")
+        end
+        @initialized[type]
+      end
+
+      def all
+        @parsers
+      end
+
+      def used
+        @initialized
+      end
+      
+    end
   end
 end

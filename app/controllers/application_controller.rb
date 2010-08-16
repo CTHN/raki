@@ -20,33 +20,54 @@ class ApplicationController < ActionController::Base
   # Scrub sensitive parameters from your log
   filter_parameter_logging :password
 
-  helper PageHelper
   helper AuthenticationHelper
+  helper PageHelper
+  helper ParseHelper
 
-  before_filter :init_raki
-  before_filter :try_to_authenticate_user
+  before_filter :init_url_helper, :try_to_authenticate_user, :set_locale, :init_context
 
   private
+  
+  def init_url_helper
+    Raki::Helpers::URLHelper.host = request.host
+    Raki::Helpers::URLHelper.port = request.port
+  end
 
-  def init_raki
-    Raki::Helpers.init self
+  def init_context
     @context = {
-      :params => params
+      :params => params,
+      :subcontext => {}
     }
   end
 
   def try_to_authenticate_user
-    User.current = nil
+    User.current = AnonymousUser.new request.remote_ip
+    if Raki::Authenticator.respond_to? :try_to_authenticate
+      Raki::Authenticator.try_to_authenticate params, session, cookies
+    end
+    unless session[:user].nil?
+      User.current = session[:user] if session[:user].is_a?(User)
+    end
+  end
+  
+  def set_locale
+    I18n.locale = I18n.default_locale
     begin
-      Raki.authenticator.try_to_authenticate params, session, cookies
-    rescue
-      begin
-        unless session[:user].nil?
-          User.current = session[:user] if session[:user].is_a?(User)
+      if request.accept_language
+        request.accept_language.split(',').each do |lang|
+          lang = lang.split(';').first.strip
+          if I18n.available_locales.include?(lang.to_sym)
+            I18n.locale = lang.to_sym
+            break
+          end
+          lang = lang.split('-').first
+          if I18n.available_locales.include?(lang.to_sym)
+            I18n.locale = lang.to_sym
+            break
+          end
         end
-      rescue
-        User.current = nil
       end
+    rescue => e
     end
   end
 
