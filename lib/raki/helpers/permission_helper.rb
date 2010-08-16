@@ -16,32 +16,31 @@
 
 module Raki
   module Helpers
-
-    include ERB::Util
-    include ActionView::Helpers::UrlHelper
-
-    class << self
-      attr_reader :controller
-      def init(controller)
-        @controller = controller
+    
+    module PermissionHelper
+      
+      class NotAuthorizedError < StandardError
       end
-    end
+      
+      def authorized?(type, name, action, user=User.current)
+        if action.is_a?(Array)
+          action.each do |a|
+            return true if Raki::Permission.to?(type, name, a, user)
+          end
+          false
+        else
+          Raki::Permission.to?(type, name, action, user)
+        end
+      end
 
-    def t(*args)
-      Raki::Helpers.controller.t(*args)
-    end
+      def authorized!(type, name, action, user=User.current)
+        unless authorized?(type, name, action, user)
+          raise NotAuthorizedError.new "#{user.id.to_s} has no permission to #{action.to_s} #{type.to_s}/#{name.to_s}"
+        end
+        true
+      end
 
-    def l(*args)
-      Raki::Helpers.controller.l(*args)
-    end
-
-    def url_for(*args)
-      Raki::Helpers.controller.url_for(*args)
     end
     
-    def redirect_to(*args)
-      Raki::Helpers.controller.send(:redirect_to, *args)
-    end
-
   end
 end

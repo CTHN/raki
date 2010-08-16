@@ -14,4 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Raki.register_authenticator(:db, DBAuthenticator)
+module Raki
+  module Helpers
+    
+    module I18nHelper
+
+      def t(*args)
+        I18n.t(*args)
+      end
+
+      def l(*args)
+        I18n.l(*args)
+      end
+
+    end
+    
+  end
+end

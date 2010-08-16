@@ -14,16 +14,40 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module ApplicationHelper
-  
-  include Raki::Helpers::FormatHelper
+module Raki
+  class Provider
+    
+    @providers = {}
+    @initialized = {}
+    
+    class << self
+      
+      def register(id, clazz)
+        @providers[id.to_sym] = clazz
+        Raki.config('providers').each do |type, settings|
+          if settings['provider'] == id.to_s
+            @initialized[type.to_sym] = clazz.new(settings)
+          end
+        end
+      end
 
-  def plugin_stylesheets
-    stylesheets = []
-    Raki::Plugin.stylesheets.each do |stylesheet|
-      stylesheets << stylesheet_link_tag(stylesheet[:url], stylesheet[:options])
+      def [](type)
+        type = type.to_sym
+        unless @initialized.key?(type)
+          return @initialized[:default] if @initialized.key?(:default)
+          raise RakiError.new("No Provider")
+        end
+        @initialized[type]
+      end
+
+      def all
+        @providers
+      end
+
+      def used
+        @initialized
+      end
+      
     end
-    stylesheets.join ""
   end
-
 end

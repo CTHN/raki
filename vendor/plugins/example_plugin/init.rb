@@ -27,9 +27,7 @@ Raki::Plugin.register :example do
       raise Raki::Plugin::PluginError.new "ERROR: #{params[:error]}"
     end
     
-    Raki.parser(:page).parse(
-      "%%information *Example Plugin*\n\nContext: #{context.inspect.gsub /\\/, ''}\nParameters: #{params.inspect.gsub /\\/, ''}\nBody: #{body}%%"
-    )
+    "<div class=\"information\">*Example Plugin*\n\nContext: #{context.inspect.gsub /\\/, ''}\nParameters: #{params.inspect.gsub /\\/, ''}\nBody: #{body}</div>"
   end
 
 end

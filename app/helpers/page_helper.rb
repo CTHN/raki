@@ -16,42 +16,31 @@
 
 module PageHelper
   
-  def url_for_page(type, name, revision=nil)
+  include Raki::Helpers::PermissionHelper
+  include Raki::Helpers::ProviderHelper
+  include Raki::Helpers::ParserHelper
+  
+  def url_for_page type, page, revision=nil
     if revision.nil?
-      {:controller => 'page', :action => 'view', :type => h(type), :id => h(name)}
+      url_for :controller => 'page', :action => 'view', :type => h(type), :id => h(page)
     else
-      {:controller => 'page', :action => 'view', :type => h(type), :id => h(name), :revision => h(revision)}
+      url_for :controller => 'page', :action => 'view', :type => h(type), :id => h(page), :revision => h(revision)
     end
   end
 
-  def page_contents(type, name, revision=nil)
-    if page_exists?(type, name, revision)
-      Raki.provider(type).page_contents(type, name, revision)
-    else
-      return nil
-    end
-  end
-
-  def insert_page(type, name, revision=nil)
-    if page_exists?(type, name, revision)
+  def insert_page type, page, revision=nil
+    if authorized?(type, page, :view) && page_exists?(type, page, revision)
       context = @context.clone
       context[:type] = type
-      context[:page] = name
+      context[:page] = page
       begin
-        parsed = Raki.parser(type).parse(page_contents(type, name, revision), context)
-        parsed.nil? ? "<div class=\"error\">#{t 'parser.parsing_error'}</div>" : parsed
-      rescue
+        contents = page_contents type, page, revision
+        parsed = parse type, contents, context
+      rescue => e
+        Rails.logger.error e
         "<div class=\"error\">#{t 'parser.parsing_error'}</div>"
       end
     end
-  end
-
-  def page_exists?(type, name, revision=nil)
-    Raki.provider(type).page_exists?(type, name, revision)
-  end
-
-  def page_revisions(type, name)
-    Raki.provider(type).page_revisions(type, name)
   end
 
 end

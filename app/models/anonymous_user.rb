@@ -14,12 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-module Raki
-  module PluginHelpers
-    
-    def url?(url)
-      !(url.match "^[a-zA-Z]+:\/\/(.+(:.+)?@)?[a-zA-Z0-9_-](\.[a-zA-Z0-9_-])*(:[0-9]+)?/").nil?
-    end
-    
+class AnonymousUser < User
+  
+  def initialize(ip)
+    @id = ip
+    @email = "#{ip}@#{Raki.app_name.underscore}"
   end
+  
 end

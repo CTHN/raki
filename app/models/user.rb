@@ -16,12 +16,25 @@
 
 class User
   
-  attr_reader :username, :email, :real_object
+  attr_reader :id
   
-  def initialize(username, email, real_object=nil)
-    @username = username
-    @email = email
-    @real_object = real_object
+  def initialize(id, options={})
+    @id = id
+    @username = options[:username]
+    @email = options[:email]
+    @display_name = options[:display_name]
+  end
+  
+  def username
+    @username.nil? ? @id : @username
+  end
+  
+  def email
+    @email
+  end
+  
+  def display_name
+    @display_name.nil? ? username : @display_name
   end
   
   def self.current
@@ -31,4 +44,5 @@ class User
   def self.current=(user)
     @current = user
   end
+  
 end

@@ -20,7 +20,7 @@ module Raki
     class ProviderError < StandardError
     end
     
-    include Raki::Helpers
+    attr_reader :id
 
     def page_exists?(type, name, revision=nil)
       raise ProviderError.new 'not implemented'
@@ -54,7 +54,7 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
     
-    def page_diff(type, page, revision_from, revision_to=nil)
+    def page_diff(type, page, revision_from=nil, revision_to=nil)
       raise ProviderError.new 'not implemented'
     end
 
@@ -78,7 +78,7 @@ module Raki
       raise ProviderError.new 'not implemented'
     end
 
-    def attachment_all(type, page=nil)
+    def attachment_all(type, page)
       raise ProviderError.new 'not implemented'
     end
 
@@ -95,13 +95,18 @@ module Raki
     class Revision
       attr_reader :id, :version, :size, :user, :date, :message
 
-      def initialize(id, version, size, user, date, message)
+      def initialize(id, version, size, user, date, message, deleted=false)
         @id = id
         @version = version
         @size = size
         @user = user
         @date = date
         @message = message
+        @deleted = deleted
+      end
+      
+      def deleted?
+        @deleted
       end
     end
 

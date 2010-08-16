@@ -15,17 +15,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class AuthenticationController < ApplicationController
+  
+  include AuthenticationHelper
 
   def login
-    redirect_to :controller => 'page', :action => 'view', :type => 'page', :id => Raki.frontpage unless User.current.nil?
+    redirect_to :controller => 'page', :action => 'view', :type => Raki.frontpage[:type], :id => Raki.frontpage[:page] if authenticated?
     begin
-      Raki.authenticator.login_hook params, session, cookies
+      Raki::Authenticator.login_hook params, session, cookies
     rescue
       # ignore
     end
     @title = t 'auth.login'
     begin
-      @form_fields = Raki.authenticator.form_fields
+      @form_fields = Raki::Authenticator.form_fields
     rescue
       @form_fields = []
     end
@@ -34,13 +36,13 @@ class AuthenticationController < ApplicationController
       unless params[:loginsubmit].nil?
         params.delete(:controller)
         params.delete(:action)
-        res = Raki.authenticator.login(params, session, cookies)
+        res = Raki::Authenticator.login(params, session, cookies)
         if res.is_a?(String)
           redirect_to res
         elsif res.is_a?(User)
           session[:user] = res
         else
-          session[:user] = nil
+          session[:user] = anonymous_user
           flash[:notice] = t 'auth.invalid_credentials'
         end
       end
@@ -50,7 +52,7 @@ class AuthenticationController < ApplicationController
   end
 
   def logout
-    User.current = nil
+    User.current = anonymous_user
     reset_session
     flash[:notice] = t 'auth.logged_out'
     redirect
@@ -60,7 +62,7 @@ class AuthenticationController < ApplicationController
     begin
       params.delete(:controller)
       params.delete(:action)
-      resp = Raki.authenticator.callback(params, session, cookies)
+      resp = Raki::Authenticator.callback(params, session, cookies)
       if resp.is_a?(User)
         session[:user] = resp
         User.current= resp
@@ -78,7 +80,7 @@ class AuthenticationController < ApplicationController
   private
   
   def redirect(default=nil)
-    redirect_to :controller => 'page', :action => 'view', :type => 'page', :id => Raki.frontpage
+    redirect_to :controller => 'page', :action => 'view', :type => Raki.frontpage[:type], :id => Raki.frontpage[:page]
   end
 
 end

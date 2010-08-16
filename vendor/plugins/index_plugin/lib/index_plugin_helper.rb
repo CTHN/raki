@@ -16,45 +16,53 @@
 
 module IndexPluginHelper
   
-  def letters_pages types
+  def letters_pages
+    return @index unless @index.nil?
+    
+    p_types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
+    p_types = types if params[:type] == 'all'
+    
     chars = {}
-    types.each do |type|
+    
+    p_types.each do |type|
       type = type.to_sym
-      Raki.provider(type).page_all(type).each do |page|
+      
+      page_all!(type).each do |page|
         letter = page[0].chr.upcase
         chars[letter] = [] unless chars.key?(letter)
         chars[letter] << {:type => type, :page => page}
       end
+      
     end
-    chars = array_to_hash chars.sort { |a, b| a[0] <=> b[0] }
-    chars.keys.each { |letter| chars[letter] = sort_pages chars[letter] }
-    chars
+    
+    index = []
+    keys = chars.keys.sort {|a,b| a <=> b}
+    keys.each do |key|
+      index << {
+          :letter => key,
+          :pages => sort_pages(chars[key])
+        }
+    end
+    @index = index
+    
+    @index
   end
   
-  def array_to_hash array
-    hash = {}
-    array.each do |item|
-      hash[item[0]] = item[1]
-    end
-    hash
+  def rnd
+    @rnd = rand(900)+100 if @rnd.nil?
+    @rnd
   end
+  
+  private
   
   def sort_pages pages
-    pages.each.sort do |a, b|
-      if a[:type] == b[:type]
-        a[:page].to_s <=> b[:page].to_s
+    pages.sort do |a,b|
+      if a[:page].downcase == b[:page].downcase
+        a[:page] <=> b[:page]
       else
-        a[:type].to_s <=> b[:type].to_s
+        a[:page].downcase <=> b[:page].downcase
       end
     end
-  end
-  
-  def provider_types
-    types = []
-    Raki.providers.keys.each do |provider|
-      types += Raki.provider(provider).types
-    end
-    types
   end
   
 end
