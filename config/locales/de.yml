@@ -13,13 +13,13 @@ de:
 
     username: Benutzername
     password: Passwort
-    login: Login
+    login: Einloggen
     invalid_credentials: Falsche Zugangsdaten
     logged_out: Ausgeloggt
 
   authinfo:
-    login: Login
-    logout: Logout
+    login: Einloggen
+    logout: Ausloggen
     
   forbidden: Keine Berechtigung
 
