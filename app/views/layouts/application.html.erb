@@ -31,34 +31,8 @@
 
 		<div id="content">
       <div class="canvas">
-        <!-- TODO: This navigation is static. Should this also generated with the
-                   wiki syntax and a wiki page? Problem: the "first" and "selected"
-                   class identifier -->
-        <!-- TODO: Mark active page -->
 				<nav id="navigation">
-					<ul>
-						<li class="first"><a href="/page/cthn"><span>Über den cthn</span></a></li>
-						<li><a href="/page/Ziele"><span>Ziele</span></a></li>
-						<li class="last"><a href="/page/Mitglieder"><span>Mitglieder</span></a></li>
-					</ul>
-
-					<ul>
-						<li class="first selected"><a href="/page/Treffen"><span>Treffen & Battles</span></a></li>
-						<li><a href="/page/Veranstaltungen"><span>Veranstaltungen</span></a></li>
-						<li><a href="/page/Projekte"><span>Projekte</span></a></li>
-						<li><a href="/page/Kontakt"><span>Mailingliste & Kontakt</span></a></li>
-						<li class="last"><a href="/page/Impressum"><span>Impressum</span></a></li>
-					</ul>
-
-					<ul>
-						<li class="first last"><a href="#"><span>Suche</span></a></li>
-					</ul>
-					<br /><br />
-
-					<ul>
-						<li class="first"><a href="#"><span>Letzte Änderungen</span></a></li>
-						<li class="last"><a href="#"><span>Alle Seiten</span></a></li>
-					</ul>
+				  <%= insert_page :page, 'LeftMenu' %>
         </nav>
 
         <!-- TODO: Make this dynamic -->
