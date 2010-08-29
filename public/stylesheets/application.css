@@ -16,7 +16,7 @@ img#cables {
 	position: absolute;
 	right: -155px;
 	top: 80px;
-  z-index: 100;
+  z-index: 1;
 }
 
 a#logo img {
@@ -57,6 +57,8 @@ article {
 	width: 610px;
 	padding: 15px 25px 15px 0;
 	float: right;
+  position: relative;
+  z-index: 5;
 }
   article img {
     border: 1px solid #cfcfcf;
@@ -80,7 +82,7 @@ nav#navigation {
 		  padding: 0;
 		  list-style: none;
 	  }
-	  
+
 			nav#navigation ul li a:link,
 			nav#navigation ul li a:visited {
 				margin: -3px 0 0 -5px;
@@ -92,7 +94,7 @@ nav#navigation {
 				font-size: 1.1em;
 				color: black;
 			}
-			
+
 			nav#navigation ul li a:hover,
 			nav#navigation ul li a:active {
 				background: transparent url(../images/navigation_entry_hover_bg.png) no-repeat;
@@ -101,25 +103,25 @@ nav#navigation {
 					display: block;
 					padding: 8px 0 0 20px;
 				}
-				
+
 			nav#navigation ul li.selected a:link,
 			nav#navigation ul li.selected a:visited {
 				color: white;
 				background: transparent url(../images/navigation_entry_selected_bg.png) no-repeat;
 			}
-			
+
 			nav#navigation ul li.first a:link,
 			nav#navigation ul li.first a:visited {
 				margin: 0px 0 0 -5px;
 				height: 36px;
 				background: transparent url(../images/navigation_entryfirst_bg.png) no-repeat;
 			}
-			
+
 			nav#navigation ul li.first a:hover,
 			nav#navigation ul li.first a:active {
 				background: transparent url(../images/navigation_entryfirst_hover_bg.png) no-repeat;
 			}
-			
+
 			nav#navigation ul li.first.selected a:link,
 			nav#navigation ul li.first.selected a:visited {
 				background: transparent url(../images/navigation_entryfirst_selected_bg.png) no-repeat;
@@ -131,6 +133,8 @@ nav#navigation {
 section#footer {
 	height: 45px;
 	background: transparent url(../images/footer_bg.png) no-repeat;
+  position: relative;
+  z-index: 5;
 }
 
 	section#footer p {
