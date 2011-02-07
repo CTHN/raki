@@ -1,0 +1,28 @@
+<!-- TODO: This navigation is static. Should this also generated with the
+           wiki syntax and a wiki page? Problem: the "first" and "selected"
+           class identifier -->
+<!-- TODO: Mark active page -->
+
+<ul>
+	<li class="first"><a href="<%=Page.new(:namespace => 'page', :name => 'cthn').url %>"><span>Über den cthn</span></a></li>
+	<li><a href="<%=Page.new(:namespace => 'page', :name => 'Ziele').url %>"><span>Ziele</span></a></li>
+	<li class="last"><a href="<%=Page.new(:namespace => 'page', :name => 'Mitglieder').url %>"><span>Mitglieder</span></a></li>
+</ul>
+
+<ul>
+	<li class="first selected"><a href="<%=Page.new(:namespace => 'page', :name => 'Treffen').url %>"><span>Treffen & Battles</span></a></li>
+	<li><a href="<%=Page.new(:namespace => 'page', :name => 'Veranstaltungen').url %>"><span>Veranstaltungen</span></a></li>
+	<li><a href="<%=Page.new(:namespace => 'page', :name => 'Projekte').url %>"><span>Projekte</span></a></li>
+	<li><a href="<%=Page.new(:namespace => 'page', :name => 'Kontakt').url %>"><span>Mailingliste & Kontakt</span></a></li>
+	<li class="last"><a href="<%=Page.new(:namespace => 'page', :name => 'Impressum').url %>"><span>Impressum</span></a></li>
+</ul>
+
+<ul>
+	<li class="first last"><a href="#"><span>Suche</span></a></li>
+</ul>
+<br /><br />
+
+<ul>
+	<li class="first"><a href="<%=Page.new(:namespace => 'page', :name => 'RecentChanges').url %>"><span>Letzte Änderungen</span></a></li>
+	<li class="last"><a href="<%=Page.new(:namespace => 'page', :name => 'Index').url %>"><span>Alle Seiten</span></a></li>
+</ul>
