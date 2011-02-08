@@ -109,20 +109,21 @@ nav#navigation {
 				background: transparent url(../images/navigation_entry_selected_bg.png) no-repeat;
 			}
 			
-			nav#navigation ul li.first a:link,
-			nav#navigation ul li.first a:visited {
+			nav#navigation ul li:first-child a:link,
+			nav#navigation ul li:first-child a:visited {
 				margin: 0px 0 0 -5px;
-				height: 36px;
+				height: 32px;
+				padding-top: 4px;
 				background: transparent url(../images/navigation_entryfirst_bg.png) no-repeat;
 			}
 			
-			nav#navigation ul li.first a:hover,
-			nav#navigation ul li.first a:active {
+			nav#navigation ul li:first-child a:hover,
+			nav#navigation ul li:first-child a:active {
 				background: transparent url(../images/navigation_entryfirst_hover_bg.png) no-repeat;
 			}
 			
-			nav#navigation ul li.first.selected a:link,
-			nav#navigation ul li.first.selected a:visited {
+			nav#navigation ul li:first-child.selected a:link,
+			nav#navigation ul li:first-child.selected a:visited {
 				background: transparent url(../images/navigation_entryfirst_selected_bg.png) no-repeat;
 			}
 				nav#navigation ul li.first a span {
