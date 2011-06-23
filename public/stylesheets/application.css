@@ -1,7 +1,8 @@
 /**
- * Created: 25.05.2010
- * changed: 26.07.2010 (Correct paths and insert raki styles)
- * changed: 07.02.2011 (visited link color; changed header/footer id to html5 header/footer tags)
+ * 25.05.2010 (Initial creation)
+ * 26.07.2010 (Correct paths and insert raki styles)
+ * 07.02.2011 (visited link color; changed header/footer id to html5 header/footer tags)
+ * 23.06.2011 (Reorder teh cables and pimp up the content)
  *
  * Aaron Mueller <http://aaron-mueller.de/>
  * Ruben Mueller <http://purzwei.de/>
@@ -10,18 +11,21 @@
 body {
 	position: relative;
 	width: 910px;
-	left: 50px;
+	left: 10px;
 }
 
-img#cables {
+img#cables_ccc, img#cables {
 	position: absolute;
-	right: -155px;
-	top: 80px;
+	right: 30px;
+	top: 45px;
   z-index: 100;
+}
+img#cables {
+	right: -158px;
 }
 
 a#logo img {
-	margin: 30px 0 0 200px;
+	margin: 15px 0 0 25px;
 	display: block;
 	line-height: 0 !important; /* fix for blueprint overwrite */
 }
@@ -52,12 +56,16 @@ div#content {
 	div#content div.canvas {
 		margin: 0 30px 0 30px;
 		background-color: white;
+    position: relative;
 	}
 
 article {
 	width: 610px;
 	padding: 15px 25px 15px 0;
 	float: right;
+  position: relative;
+  display: block;
+  font: 1.1em helvetica,arial,freesans,clean;
 }
   article img {
     border: 1px solid #cfcfcf;
@@ -68,6 +76,50 @@ article {
   article img.right { float: right; margin-right: 0;}
   article img.center { display: block; margin-left: auto; margin-right: auto; }
   article img.left { float: left; margin-left: 0;}
+  
+  article a.active {
+    font-weight: bold;
+  }
+  h1#header_path {
+    color: #eee;
+    font-size: 2.3em;
+    position: absolute;
+    left: 210px;
+    top: 15px;
+  }
+  
+  article h1 {
+  
+  }
+  article h2 {
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 7px;
+    font-size: 18px;
+  }
+  article h3 {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  article ul {
+    list-style-type: square;
+    margin: 0;
+  }
+  article ul li {
+    margin-bottom: 6px;
+  }
+  article ul {
+    margin-top: 10px;
+  }
+  article a, footer a {
+    color: #4183C4;
+  }
+  article a:link, footer a:link { text-decoration: none; }
+  article a:hover, article a:visited, footer a:hover {
+    text-decoration: underline;
+    color: #4183C4;
+  }
+
 
 nav#navigation {
 	background: transparent url(../images/navigation_bg.jpg) repeat-x;
@@ -130,22 +182,14 @@ nav#navigation {
 					padding: 12px 0 0 20px;
 				}
 
-div#content footer {
-	height: 25px;
+footer {
 	padding: 10px 55px 10px 245px;
 	font-size: .8em;
 	color: #888;
 	text-align: right;
 	background: transparent url(../images/footer_bg.png) no-repeat;
+  margin-bottom: 20px;
 }
-
-body > footer:last-child {
-  margin-top: 10px;
-  height: 45px;
-  font-size: .8em;
-  text-align: center;
-}
-
 
 #auth_username {
     margin-left: 40px !important;
@@ -155,8 +199,4 @@ body > footer:last-child {
 
 div#login {
   width: 250px;
-}
-
-a.active {
-    font-weight: bold;
 }

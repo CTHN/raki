@@ -4,7 +4,9 @@
 	  <%=render :partial => 'layouts/header' %>
   </head>
   <body>
+    <%=image_tag('cables_ccc.png', :alt => 'cables', :id => 'cables_ccc') %>
     <%=image_tag('cables.png', :alt => 'cables', :id => 'cables') %>
+    
     <%=link_to image_tag('logo.png', :alt => 'cthn logo'), {:controller => 'page', :action => 'redirect_to_frontpage'}, :id => 'logo' %>
     <%=link_to image_tag('rss.png', :alt => 'Feed'), {:controller => 'feed', :action => 'global'}, {:title => t('feed.global', :app_name => Raki.app_name), :id => 'rss'} %>
     
@@ -19,23 +21,21 @@
           <%=Raki::Parser[:page].parse '\\cthn_menu\\', context %>
         </nav>
         
-        <%=image_tag('header/2m.png', :alt => 'header image', :id => 'headerimage') %>
+        <%= image_tag('header/2m.png', :alt => 'header image', :id => 'headerimage') %>
+        <h1 id="header_path"><%= h @title %></h1>
         
         <article>
-          <h1><%= h @title %></h1>
           <%= yield %>
 				</article>
 				
 				<span class="clearfix"></span>
         
       </div>
-      <footer>
-        <%=render :partial => "#{controller_name}/footer" %>
-  		</footer>
     </div>
     
     <footer>
-      Diese Seite wurde von <a href="http://github.com/ydkn/raki">Raki, Version <%= Raki.version %></a> - einem Wiki auf git-Basis - generiert. Mehr Informationen dazu unter <a href="<%=Page.new(:namespace => 'projects', :name => 'Wiki').url %>">Projekte/Wiki</a>.
+      <%=render :partial => "#{controller_name}/footer" %><br />
+      Diese Seite basiert auf <a href="http://github.com/ydkn/raki">Raki, Version <%= Raki.version %></a> - einem Wiki auf git-Basis.<br />Mehr Informationen dazu unter <a href="<%=Page.new(:namespace => 'projects', :name => 'Wiki').url %>">Projekte/Wiki</a>.
     </footer>
   </body>
 </html>

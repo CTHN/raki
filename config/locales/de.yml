@@ -32,7 +32,7 @@ de:
 
   page:
 
-    footer: "%{user} veränderte diese Seite am %{date}. Dies ist Version %{version}."
+    footer: "%{user} veränderte diese Seite am <strong>%{date}</strong>. Dies ist Version <strong>%{version}</strong>."
     
     not_exists:
       msg: Diese Seite existiert nicht.

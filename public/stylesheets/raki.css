@@ -25,6 +25,13 @@ nav#controls div a.active {
     background-color: #ffffff;
 }
 
+header a.inactive {
+  color: gray;
+}
+header a:hover {
+  text-decoration: underline;
+}
+
 div#controls_left {
     float: left;
 	margin-left: 1.5em;
@@ -281,16 +288,3 @@ table.diff td.add {
 table.diff td.remove {
 	background-color: #ffcccc;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
