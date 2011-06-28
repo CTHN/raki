@@ -21,13 +21,15 @@ Raki::Plugin.register :img do
   url 'http://github.com/ydkn/raki'
   author 'Martin Sigloch'
   version '0.1'
+  
+  include Raki::Helpers::PluginHelper
 
   execute do
     img = body.strip
-    type = params[:type].nil? ? context[:type].to_s : params[:type]
+    namespace = params[:namespace].nil? ? context[:namespace].to_s : params[:namespace]
     page = params[:page].nil? ? context[:page].to_s : params[:page]
     
-    url = url?(img) ? img : "/#{type}/#{page}/attachment/#{img}"
+    url = url?(img) ? img : "/#{namespace}/#{page}/attachment/#{img}"
     
     alt = params[:alt].nil? ? img : params[:alt]
     
@@ -35,7 +37,7 @@ Raki::Plugin.register :img do
     attributes << "width=\"#{h params[:width]}\"" unless params[:width].nil?
     attributes << "height=\"#{h params[:height]}\"" unless params[:height].nil?
     
-    "<img src=\"#{h url}\" alt=\"#{h alt}\" #{attributes.join ' '} />"
+    render :inline => "<img src=\"#{h url}\" alt=\"#{h alt}\" #{attributes.join ' '} />"
   end
 
 end

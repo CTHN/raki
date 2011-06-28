@@ -1,0 +1,19 @@
+<div class="index">
+  <div class="index_header">
+  	<% i = 0; @index.each do |index| %>
+	  <a href="#INDEX-<%=h("#{index[:letter]}-#{@rnd}") %>"><%=h index[:letter] %></a>
+	  <%=h " - " if (i += 1) < @index.length %>
+	<% end %>
+  </div>
+  <div class="index_body">
+  	<% @index.each do |index| %>
+	  <div class="index_letter" id="INDEX-<%=h("#{index[:letter]}-#{@rnd}") %>"><%=h index[:letter] %></div>
+	  <div class="index_pages">
+		<% i = 0; index[:pages].each do |page| %>
+		  <a href="<%=page.url %>"><%=h((@namespaces ? @namespaces.length : -1 ) == 1 ? page.name : "#{page.namespace}/#{page.name}") %></a>
+		  <%=h ", " if (i += 1) < index[:pages].size %>
+	  	<% end %>
+	  </div>
+	<% end %>
+  </div>
+</div>

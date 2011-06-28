@@ -15,32 +15,52 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class FeedController < ApplicationController
+  LIMIT = 15
   
-  include Raki::Helpers::ProviderHelper
+  def global
+    @revisions = Page.changes(:limit => LIMIT)
+    @revisions += Attachment.changes(:limit => LIMIT)
+    
+    @revisions.delete_if{|r| !r.page.authorized?(User.current, :view)}
+    
+    @revisions = @revisions.sort {|a,b| b.date <=> a.date}
+    @revisions = @revisions[0..LIMIT]
+    
+    respond_to do |format|
+      format.atom
+    end
+  end
   
-  def feed
-    days = {}
-    types.each do |type|
-      page_changes(type).each do |change|
-        day = change.revision.date.strftime("%Y-%m-%d")
-        days[day] = [] unless days.key?(day)
-        days[day] << change
-      end
-      attachment_changes(type).each do |change|
-        day = change.revision.date.strftime("%Y-%m-%d")
-        days[day] = [] unless days.key?(day)
-        days[day] << change
-      end
+  def namespace
+    @namespace = params[:namespace]
+    
+    @revisions = Page.changes(:namespace => @namespace, :limit => LIMIT)
+    @revisions += Attachment.changes(:namespace => @namespace, :limit => LIMIT)
+    
+    @revisions.delete_if{|r| !r.page.authorized?(User.current, :view)}
+    
+    @revisions = @revisions.sort {|a,b| b.date <=> a.date}
+    @revisions = @revisions[0..LIMIT]
+    
+    respond_to do |format|
+      format.atom
     end
-    days = days.sort { |a,b| b <=> a }
-    out = ""
-    @changes = []
-    days.each do |day,changes|
-      changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
-      changes.each do |change|
-        @changes << change
-      end
+  end
+  
+  def page
+    @page = Page.find(params[:namespace], params[:page])
+    unless @page
+      render :nothing => true, :status => :not_found
+      return
     end
+    render :nothing => true, :status => :forbidden unless @page.authorized?(User.current, :view)
+    
+    @revisions = @page.revisions
+    @revisions += Attachment.changes(:namespace => @page.namespace, :page => @page.name, :limit => LIMIT)
+    
+    @revisions = @revisions.sort {|a,b| b.date <=> a.date}
+    @revisions = @revisions[0..LIMIT]
+    
     respond_to do |format|
       format.atom
     end

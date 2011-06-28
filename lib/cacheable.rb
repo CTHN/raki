@@ -76,6 +76,8 @@ module Cacheable
     #    cache :foobar, :ttl => 10, :force => true
     # 
     def cache(name, options={})
+      return if Rails.env == 'development'
+      
       name = name.to_s
       name_uncached = "__uncached_#{name.to_s}"
       
@@ -120,7 +122,9 @@ module Cacheable
   
   # Mark all values as expired.
   def self.expire
-    time = Time.parse('1900-01-01')
+    return if Rails.env == 'development'
+    
+    time = Time.at(0)
     @cache.values.each do |clazz|
       clazz.values.each do |cached|
         cached.values.each do |params|
@@ -132,6 +136,8 @@ module Cacheable
   
   # Remove all values from cache.
   def self.flush
+    return if Rails.env == 'development'
+    
     @cache.values.each do |clazz|
       clazz.values.each do |cached|
         cached.clear
@@ -142,9 +148,11 @@ module Cacheable
   
   # Mark value(s) as expired.
   def expire(name=nil, *args)
+    return if Rails.env == 'development'
+    
     name = name.to_sym
     cache = Cacheable.cache[self]
-    time = Time.parse('1900-01-01')
+    time = Time.at(0)
     if name.nil?
       cache.values.each do |method_args|
         method_args.values.each do |params|
@@ -162,6 +170,8 @@ module Cacheable
   
   # Removes value(s) from the cache.
   def flush(name=nil, *args)
+    return if Rails.env == 'development'
+    
     name = name.to_sym
     cache = Cacheable.cache[self]
     if name.nil?
@@ -177,6 +187,7 @@ module Cacheable
   
   # Check if value is cached.
   def cached?(name, *args)
+    return false if Rails.env == 'development'
     cache = Cacheable.cache[self][name.to_sym]
     return false unless cache.key?(args)
     params = cache[args]

@@ -16,31 +16,54 @@
 
 module PageHelper
   
-  include Raki::Helpers::PermissionHelper
-  include Raki::Helpers::ProviderHelper
-  include Raki::Helpers::ParserHelper
+  def url_for_page namespace, page, revision=nil
+    options = {:controller => 'page', :action => 'view', :namespace => h(namespace), :page => h(page)}
+    options[:revision] = h(revision) if revision
+    url_for options
+  end
   
-  def url_for_page type, page, revision=nil
-    if revision.nil?
-      url_for :controller => 'page', :action => 'view', :type => h(type), :id => h(page)
-    else
-      url_for :controller => 'page', :action => 'view', :type => h(type), :id => h(page), :revision => h(revision)
-    end
+  def context
+    @context
   end
 
-  def insert_page type, page, revision=nil
-    if authorized?(type, page, :view) && page_exists?(type, page, revision)
-      context = @context.clone
-      context[:type] = type
-      context[:page] = page
-      begin
-        contents = page_contents type, page, revision
-        parsed = parse type, contents, context
-      rescue => e
-        Rails.logger.error e
-        "<div class=\"error\">#{t 'parser.parsing_error'}</div>"
-      end
+  def insert_page page
+    return unless page
+    if page.authorized?(User.current, :view) && page.exists?
+      page.render context
     end
+  end
+  
+  def format_diff diff
+    ""
+  end
+  
+  def toolbar_item options
+    options = options.clone
+    opts = {}
+    
+    opts[:title] = options[:title] || t("toolbar.#{options[:id]}")
+    options.delete :title
+    
+    opts[:id] = "toolbar-#{options[:id]}"
+    id = options.delete :id
+    
+    image = options[:image] || "toolbar/#{id}.png"
+    options.delete :image
+    
+    options.each do |key, value|
+      opts["data-#{key}"] = value
+    end
+    
+    opts[:class] = 'item'
+    
+    link_to image_tag(image), '#', opts
+  end
+  
+  def error_messages
+    e = []
+    e += @page.errors if @page && @page.errors
+    e += @attachment.errors if @attachment && @attachment.errors
+    e
   end
 
 end

@@ -1,0 +1,30 @@
+<table cellpadding="0" cellspacing="0" class="recentchanges">
+  <% days_changes.each do |day, revisions| %>
+    <tr>
+	  <th><%=l Time.parse(day), :format => :date %></th>
+	  <th></th>
+	  <th></th>
+	  <th></th>
+	</tr>
+	<% revisions.each do |revision| %>
+	  <tr>
+		<% if revision.type == :page %>
+		  <% if revision.deleted? %>
+		    <td><%=h(short_title ? revision.page.name : "#{revision.page.namespace}/#{revision.page.name}") %></td>
+		  <% else %>
+		    <td><a href="<%=revision.page.url(:view) %>"><%=h(short_title ? revision.page.name : "#{revision.page.namespace}/#{revision.page.name}") %></a></td>
+		  <% end %>
+		<% else %>
+		  <% if revision.deleted? %>
+		    <td><%=h(short_title ? "#{revision.page.name}/#{revision.attachment.name}" : "#{revision.page.namespace}/#{revision.page.name}/#{revision.attachment.name}") %></td>
+		  <% else %>
+		    <td><a href="<%=revision.attachment.url(:attachment) %>"><%=h(short_title ? "#{revision.page.name}/#{revision.attachment.name}" : "#{revision.page.namespace}/#{revision.page.name}/#{revision.attachment.name}") %></a></td>
+		  <% end %>
+		<% end %>
+		<td><%=l revision.date, :format => :time %></td>
+		<td><a href="<%=revision.user.page.url %>"><%=h(revision.user.display_name) %></a></td>
+		<td><%=h revision.message %></td>
+	  </tr>
+	<% end %>
+  <% end %>
+</table>

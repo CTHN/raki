@@ -17,16 +17,17 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
 
-  # Scrub sensitive parameters from your log
   filter_parameter_logging :password
 
-  helper AuthenticationHelper
   helper PageHelper
-  helper ParseHelper
 
-  before_filter :init_url_helper, :try_to_authenticate_user, :set_locale, :init_context
+  before_filter :init_url_helper, :init_visited_pages, :try_to_authenticate_user, :set_locale, :init_context
 
   private
+  
+  def init_visited_pages
+    session[:visited_pages] ||= []
+  end
   
   def init_url_helper
     Raki::Helpers::URLHelper.host = request.host
@@ -41,13 +42,24 @@ class ApplicationController < ActionController::Base
   end
 
   def try_to_authenticate_user
-    User.current = AnonymousUser.new request.remote_ip
-    if Raki::Authenticator.respond_to? :try_to_authenticate
-      Raki::Authenticator.try_to_authenticate params, session, cookies
+    User.current = nil
+    
+    if Raki::Authenticator.respond_to? :validate_session
+      resp = Raki::Authenticator.validate_session params, session, cookies
+      if resp.is_a? String
+        redirect_to resp
+      elsif resp.is_a? User
+        User.current = resp
+        session[:user] = resp.to_hash
+      end
+    elsif session[:user]
+      User.current = Raki::Authenticator.user_for session[:user]
     end
-    unless session[:user].nil?
-      User.current = session[:user] if session[:user].is_a?(User)
-    end
+    
+    unless User.current
+      session.delete :user
+      User.current = AnonymousUser.new request.remote_ip
+    end 
   end
   
   def set_locale

@@ -15,34 +15,30 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class AuthenticationController < ApplicationController
-  
-  include AuthenticationHelper
 
   def login
-    redirect_to :controller => 'page', :action => 'view', :type => Raki.frontpage[:type], :id => Raki.frontpage[:page] if authenticated?
-    begin
-      Raki::Authenticator.login_hook params, session, cookies
-    rescue
-      # ignore
+    if authenticated?
+      redirect
+      return
     end
     @title = t 'auth.login'
-    begin
+    
+    if Raki::Authenticator.respond_to? :form_fields
       @form_fields = Raki::Authenticator.form_fields
-    rescue
+    else
       @form_fields = []
     end
     @context[:login] = true
     begin
       unless params[:loginsubmit].nil?
-        params.delete(:controller)
-        params.delete(:action)
-        res = Raki::Authenticator.login(params, session, cookies)
-        if res.is_a?(String)
-          redirect_to res
-        elsif res.is_a?(User)
-          session[:user] = res
+        resp = Raki::Authenticator.login(params, session, cookies)
+        if resp.is_a? String
+          redirect_to resp
+        elsif resp.is_a? User
+          User.current = resp
+          session[:user] = resp.to_hash
         else
-          session[:user] = AnonymousUser.new request.remote_ip
+          User.current = AnonymousUser.new request.remote_ip
           flash[:notice] = t 'auth.invalid_credentials'
         end
       end
@@ -52,20 +48,26 @@ class AuthenticationController < ApplicationController
   end
 
   def logout
-    User.current = AnonymousUser.new request.remote_ip
-    reset_session
-    flash[:notice] = t 'auth.logged_out'
-    redirect
+    if Raki::Authenticator.respond_to? :logout
+      resp = Raki::Authenticator.logout params, session, cookies
+      if resp.is_a? String
+        redirect_to resp
+      else
+        session_reset
+      end
+    else
+      session_reset
+    end
   end
 
   def callback
     begin
       params.delete(:controller)
       params.delete(:action)
-      resp = Raki::Authenticator.callback(params, session, cookies)
-      if resp.is_a?(User)
-        session[:user] = resp
-        User.current= resp
+      resp = Raki::Authenticator.callback params, session, cookies
+      if resp.is_a? User
+        User.current = resp
+        session[:user] = resp.to_hash
         redirect
       else
         flash[:notice] = t 'auth.invalid_callback'
@@ -80,7 +82,21 @@ class AuthenticationController < ApplicationController
   private
   
   def redirect(default=nil)
-    redirect_to :controller => 'page', :action => 'view', :type => Raki.frontpage[:type], :id => Raki.frontpage[:page]
+    redirect_to :controller => 'page', :action => 'view', :namespace => Raki.frontpage[:namespace], :page => Raki.frontpage[:name]
+  end
+  
+  def session_reset
+    User.current = AnonymousUser.new request.remote_ip
+    session[:visited_pages] = []
+    session.delete(:user)
+    reset_session
+    flash[:notice] = t 'auth.logged_out'
+    redirect
+  end
+  
+  def authenticated?
+    return false if User.current.is_a? AnonymousUser
+    User.current.is_a? User
   end
 
 end

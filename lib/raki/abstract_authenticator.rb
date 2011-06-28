@@ -1,5 +1,5 @@
 # Raki - extensible rails-based wiki
-# Copyright (C) 2010 Florian Schwab
+# Copyright (C) 2010 Florian Schwab & Martin Sigloch
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,16 +23,20 @@ module Raki
     def user_for(options)
       raise AuthenticatorError.new 'not implemented'
     end
+    
+    #def callback(params, session, cookies)
+    #  raise AuthenticatorError.new 'not implemented'
+    #end
 
     #def login(params, session, cookies)
     #  raise AuthenticatorError.new 'not implemented'
     #end
     
-    #def try_to_authenticate(params, session, cookies)
+    #def logout(params, session, cookies)
     #  raise AuthenticatorError.new 'not implemented'
     #end
     
-    #def login_hook(params, session, cookies)
+    #def validate_session(params, session, cookies)
     #  raise AuthenticatorError.new 'not implemented'
     #end
     

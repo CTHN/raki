@@ -19,31 +19,34 @@ module RecentchangesPluginHelper
   RIGHTS = [:view, :edit, :upload, :delete, :rename]
   
   def days_changes
-    p_types = params[:type].nil? ? [context[:type]] : params[:type].split(',')
-    p_types = types if params[:type] == 'all'
-    
     days = {}
     
-    p_types.each do |type|
-      type = type.to_sym
-      
-      page_changes(type).each do |change|
-        next unless authorized? change.type, change.page, RIGHTS
-        day = change.revision.date.strftime("%Y-%m-%d")
-        days[day] = [] unless days.key?(day)
-        days[day] << change
-      end
-      
-      attachment_changes(type).each do |change|
-        next unless authorized? change.type, change.page, RIGHTS
-        day = change.revision.date.strftime("%Y-%m-%d")
-        days[day] = [] unless days.key?(day)
-        days[day] << change
-      end
-      
+    options = {:namespace => @namespaces}.merge @options
+    
+    Page.changes(options).select{|r| authorized? r.page}.each do |revision|
+      day = revision.date.strftime "%Y-%m-%d"
+      days[day] = [] unless days.key? day
+      days[day] << revision
     end
     
-    days.sort { |a,b| b <=> a }
+    Attachment.changes(options).select{|r| authorized? r.page}.each do |revision|
+      day = revision.date.strftime "%Y-%m-%d"
+      days[day] = [] unless days.key? day
+      days[day] << revision
+    end
+    
+    days.keys.each do |day|
+      days[day].sort!{|a,b| b <=> a}
+    end
+    days.sort {|a,b| b[0] <=> a[0] }
+  end
+  
+  def authorized? page
+    !RIGHTS.select{|r| page.authorized? User.current, r}.empty?
+  end
+  
+  def short_title
+    (@namespaces ? @namespaces.length : -1) == 1
   end
   
 end

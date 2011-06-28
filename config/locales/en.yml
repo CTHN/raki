@@ -23,14 +23,19 @@ en:
     
   forbidden: Permission denied
 
-  feed: Feed for %{app_name}
+  feed:
+    global: Feed for %{app_name}
+    namespace: Feed for %{namespace}
+    page: Feed for %{namespace}/%{page}
+  
+  visited_pages: Your trail
 
   page:
 
     footer: "%{user} changed this page on %{date}. This is version %{version}."
     
     not_exists:
-      msg: This Page does not exsist.
+      msg: This Page does not exist.
       edit_msg: You can %{edit_link} it!
       edit_link: create
 
@@ -39,16 +44,26 @@ en:
       info: Info
       edit: Edit
       attachments: Attachments
+      
+    view:
+      not_current: This is not the current version of the page
 
     edit:
       save: Save
       preview: Preview
+      preview_info: This is only a <strong>preview</strong>!
+      live_preview: Sneak Preview
       abort: Abort
+      keep_editing: Keep editing
       message: Comment
-      rename: Rename Page
-      delete: Remove entire Page
+      rename: Rename page
+      delete: Remove entire page
+      delete_question: Remove entire page?
       page_already_exists: Page already exists
-      no_permission_to_create: No Permission to create page
+      no_permission_to_create: No permission to create page
+      no_permission_to_delete: No permission to delete page
+      locked: User <b>%{user}</b> is currently editing this page.
+      no_contents: Empty page
 
     info:
       versions: Versions
@@ -59,8 +74,9 @@ en:
         user: Author
         message: Comment
       diff: Diff
-
-    feed: Feed for %{type}/%{page}
+      
+    render:
+      error: Page rendering failed
 
   attachment:
     list: Attachments
@@ -74,18 +90,30 @@ en:
     actions: Actions
     
     delete: Delete
+    delete_question: Delete attachment?
 
     upload:
       file: File
       message: Comment
       save: Upload
+      no_permission_to_create: No permission to upload attachment
+      no_permission_to_delete: No permission to delete attachment
 
     info:
         versions: Versions
+
+  diff:
+    no_diff: No difference
+  
   parser:
     parsing_error: Parsing Error
 
   plugin:
     error: Plugin '%{name}' caused error
+    not_found: The plugin '%{name}' is not installed
     missing_parameter: Missing parameter
-
+    not_available_in_live_preview: Not available in Sneak Preview
+    
+  toolbar:
+      bold: Bold
+      italic: Italic

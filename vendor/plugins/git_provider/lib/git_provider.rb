@@ -15,343 +15,332 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'rubygems'
-require 'grit'
 require 'unicode'
+require 'git_repo'
+require 'digest/md5'
 
 class GitProvider < Raki::AbstractProvider
   
   include Cacheable
 
-  def initialize(params)
-    raise ProviderError.new("Parameter 'path' not specified") unless params.key?('path')
+  def initialize(namespace, params)
+    raise ProviderError.new("Parameter 'path' not specified") unless params.key?('path') || params['path'].empty?
+    
     begin
       @branch = params.key?('branch') ? params['branch'] : 'master'
       refresh = params.key?('refresh') ? params['refresh'].to_i : 600
       
-      FileUtils.rm_rf("#{Rails.root}/tmp/git-repo")
-      @repo = Grit::Repo.clone(params['path'], "#{Rails.root}/tmp/git-repo")
-      @repo.checkout(@branch)
+      repos_path = File.join(Rails.root, 'tmp', 'gitrepos')
+      FileUtils.mkdir(repos_path) unless File.exists?(repos_path)
+      
+      repo_path = File.join(repos_path, "#{Digest::MD5.hexdigest(params['path'])}_#{namespace}")
+      
+      # Pull if existing tmp-repo has same remote origin
+      if File.exists?(File.join(repo_path, '.git'))
+        @repo = GitRepo.new(repo_path) rescue nil
+        if @repo && @repo.remotes.key?('origin') && @repo.remotes['origin'][:url] == params['path']
+          logger.info "Reusing git repository at '#{repo_path}'"
+          @repo.pull('origin', @branch)
+        else
+          @repo = nil
+          FileUtils.rm_rf(repo_path)
+        end
+      end
+      
+      unless @repo
+        logger.info "Cloning git repository from '#{params['path']}'"
+        @repo = GitRepo.clone(params['path'], repo_path)
+      end
+      
+      @repo.checkout(@branch) rescue nil
+      
+      @repo.git_timeout = (params['timeout'] || 10).to_i
       
       Thread.new do
         while true do
           sleep refresh
-          pull
+          git_pull rescue nil
         end
       end
     rescue => e
+      Rails.logger.error(e)
       raise ProviderError.new("Failed to initialize GIT repository: #{e.to_s}")
     end
   end
 
-  def page_exists?(type, name, revision=nil)
-    logger.debug("Checking if page exists: #{{:type => type, :name => name, :revision => revision}.inspect}")
-    exists?("#{type.to_s}/#{name.to_s}", revision)
+  def page_exists?(namespace, name, revision=nil)
+    return false unless valid_page_name(name)
+    exists?("#{namespace.to_s}/#{name.to_s}", revision)
   end
 
-  def page_contents(type, name, revision=nil)
-    logger.debug("Fetching contents of page: #{{:type => type, :name => name, :revision => revision}.inspect}")
-    contents("#{type.to_s}/#{name.to_s}", revision)
+  def page_contents(namespace, name, revision=nil)
+    contents("#{namespace.to_s}/#{name.to_s}", revision)
+  end
+  cache :page_contents
+
+  def page_revisions(namespace, name, options={})
+    revisions("#{namespace.to_s}/#{name.to_s}", options)
   end
 
-  def page_revisions(type, name)
-    logger.debug("Fetching revisions for page: #{{:type => type, :name => name}.inspect}")
-    revisions("#{type.to_s}/#{name.to_s}")
+  def page_save(namespace, name, contents, message, user)
+    save("#{namespace.to_s}/#{name.to_s}", contents, message, user)
   end
 
-  def page_save(type, name, contents, message, user)
-    logger.debug("Saving page: #{{:type => type, :name => name, :contents => contents, :message => message, :user => user}.inspect}")
-    save("#{type.to_s}/#{name.to_s}", contents, message, user)
+  def page_rename(old_namespace, old_name, new_namespace, new_name, user)
+    msg = (old_namespace.to_s == new_namespace.to_s) ? "#{old_name.to_s} ==> #{new_name.to_s}" : "#{old_namespace.to_s}/#{old_name.to_s} ==> #{new_namespace.to_s}/#{new_name.to_s}"
+    rename("#{old_namespace.to_s}/#{old_name.to_s}", "#{new_namespace.to_s}/#{new_name.to_s}", msg, user)
   end
 
-  def page_rename(old_type, old_name, new_type, new_name, user)
-    logger.debug("Renaming page: #{{:old_type => old_type, :old_page => old_name, :new_type => new_type, :new_page => new_name, :user => user}.inspect}")
-    msg = old_type.to_s == new_type.to_s ? "#{old_name.to_s} ==> #{new_name.to_s}" : "#{old_type.to_s}/#{old_name.to_s} ==> #{new_type.to_s}/#{new_name.to_s}"
-    rename("#{old_type.to_s}/#{old_name.to_s}", "#{new_type.to_s}/#{new_name.to_s}", msg, user)
+  def page_delete(namespace, name, user)
+    delete("#{namespace.to_s}/#{name.to_s}", "#{name.to_s} ==> /dev/null", user)
   end
 
-  def page_delete(type, name, user)
-    logger.debug("Deleting page: #{{:type => type, :page => name, :user => user}.inspect}")
-    delete("#{type.to_s}/#{name.to_s}", "#{name.to_s} ==> /dev/null", user)
+  def page_all(namespace)
+    all(namespace.to_s)
   end
 
-  def page_all(type)
-    logger.debug("Fetching all pages")
-    all(type.to_s)
-  end
-
-  def page_changes(type, amount=nil)
-    logger.debug("Fetching all page changes: #{{:type => type, :limit => amount}.inspect}")
-    changes(type.to_s, type.to_s, amount)
+  def page_changes(namespace, options={})
+    changes(namespace.to_s, namespace.to_s, options)
   end
   
-  def page_diff(type, page, revision_from=nil, revision_to=nil)
-    logger.debug("Fetching diff: #{{:type => type, :page => page, :revision_from => revision_from, :revision_to => revision_to}.inspect}")
-    diff("#{type.to_s}/#{page.to_s}", revision_from, revision_to)
+  def page_diff(namespace, page, revision_from=nil, revision_to=nil)
+    diff("#{namespace.to_s}/#{page.to_s}", revision_from, revision_to)
   end
 
-  def attachment_exists?(type, page, name, revision=nil)
-    logger.debug("Checking if page attachment exists: #{{:type => type, :page => page, :name => name, :revision => revision}.inspect}")
-    exists?("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
+  def attachment_exists?(namespace, page, name, revision=nil)
+    exists?("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
   end
 
-  def attachment_contents(type, page, name, revision=nil)
-    logger.debug("Fetching contents of page attachment: #{{:type => type, :page => page, :name => name, :revision => revision}.inspect}")
-    contents("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
+  def attachment_contents(namespace, page, name, revision=nil)
+    contents("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}", revision)
   end
 
-  def attachment_revisions(type, page, name)
-    logger.debug("Fetching revisions for page attachment: #{{:type => type, :page => page, :name => name}.inspect}")
-    revisions("#{type.to_s}/#{page.to_s}_att/#{name.to_s}")
+  def attachment_revisions(namespace, page, name, options={})
+    revisions("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}", options)
   end
 
-  def attachment_save(type, page, name, contents, message, user)
-    logger.debug("Saving page attachment: #{{:type => type, :page => page, :name => name, :contents => contents, :message => message, :user => user}.inspect}")
-    save("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", contents, message, user)
+  def attachment_save(namespace, page, name, contents, message, user)
+    save("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}", contents, message, user)
   end
 
-  def attachment_delete(type, page, name, user)
-    logger.debug("Deleting page attachment: #{{:type => type, :page => page, :name => name, :user => user}.inspect}")
-    delete("#{type.to_s}/#{page.to_s}_att/#{name.to_s}", "#{page.to_s}/#{name.to_s} ==> /dev/null", user)
+  def attachment_delete(namespace, page, name, user)
+    delete("#{namespace.to_s}/#{page.to_s}_att/#{name.to_s}", "#{page.to_s}/#{name.to_s} ==> /dev/null", user)
   end
 
-  def attachment_all(type, page)
-    logger.debug("Fetching all page attachments: #{{:type => type, :page => page}.inspect}")
-    all("#{type.to_s}/#{page.to_s}_att")
+  def attachment_all(namespace, page)
+    all("#{namespace.to_s}/#{page.to_s}_att", 3)
   end
 
-  def attachment_changes(type, page=nil, amount=nil)
-    logger.debug("Fetching all page attachment changes: #{{:type => type, :page => page, :limit => amount}.inspect}")
-    if page.nil?
+  def attachment_changes(namespace, page=nil, options={})
+    unless page
       changes = []
-      page_all(type).each do |page|
-        changes += changes(type, "#{type.to_s}/#{page.to_s}_att", amount, page)
+      page_all(namespace).each do |page|
+        changes += changes(namespace, "#{namespace.to_s}/#{page.to_s}_att", options, true)
       end
-      changes.sort { |a,b| a.revision.date <=> b.revision.date }
+      changes.sort!{|a,b| a[:date] <=> b[:date] }
     else
-      changes(type, "#{type.to_s}/#{page.to_s}_att", amount, page)
+      changes(namespace, "#{namespace.to_s}/#{page.to_s}_att", options, true)
     end
   end
   
-  def types
-    types = []
-    @repo.log.each do |commit|
-      commit.tree.trees.each do |tree|
-        types << tree.name
+  def namespaces
+    namespaces = []
+    @repo.log(@branch).each do |commit|
+      commit[:changes].each do |change|
+        namespaces << change[:file].split('/', 2).first.strip
       end
     end
-    types = types.uniq
-    types.delete(nil)
-    types
+    namespaces = namespaces.compact.uniq
+    namespaces
   end
-  cache :types
+  cache :namespaces
 
   private
 
-  def check_obj(obj)
-    raise ProviderError.new 'Invalid filename' if obj.nil? || obj.empty?
-  end
-
-  def check_user(user)
-    raise ProviderError.new 'Invalid user' if user.nil? || !user.is_a?(User)
-  end
-
-  def check_contents(contents)
-    raise ProviderError.new 'Invalid content' if contents.nil?
-  end
-
   def exists?(obj, revision=nil)
-    check_obj(obj)
     obj = normalize(obj)
-    revision = 'HEAD' if revision.nil?
-    begin
-      path, file = split_object(obj)
-      @repo.tree(revision, path).blobs.each do |blob|
-        return true if blob.name == obj
-      end
-    rescue => e
-    end
-    false
+    revision ||= 'HEAD'
+    
+    @repo.log(revision, obj, :limit => 1).first[:changes].first[:mode] != 'D' rescue false
   end
   cache :exists?
 
   def contents(obj, revision=nil)
-    check_obj(obj)
     obj = normalize(obj)
-    revision = 'HEAD' if revision.nil?
-    path, file = split_object(obj)
-    begin
-      @repo.tree(revision, path).blobs.each do |blob|
-        return blob.data if blob.name == obj
-      end
-    rescue => e
-    end
-    raise ProviderError.new("Object '#{obj}@#{revision}' does not exist!")
+    revision ||= 'HEAD'
+    
+    raise PageNotExists unless exists?(obj, revision)
+    
+    @repo.cat(revision, obj)
   end
-  cache :contents
 
   def save(obj, contents, message, user)
-    check_obj(obj)
-    check_contents(contents)
-    check_user(user)
     obj = normalize(obj)
     message = '-' if message.nil? || message.empty?
-    FileUtils.mkdir_p(path("#{@repo.working_dir}/#{obj}"))
-    File.open("#{@repo.working_dir}/#{obj}", 'w') do |f|
+    
+    FileUtils.mkdir_p(File.join(@repo.working_dir, path(obj)))
+    File.open(File.join(@repo.working_dir, obj), 'w') do |f|
       f.write(contents)
     end
+    
     @repo.add(obj)
-    @repo.commit_index(
-        message,
-        :author => format_user(user)
-    )
-    push
+    @repo.commit(message, format_user(user), obj)
+    git_push
+    
     flush(:exists?, obj, nil)
     flush(:contents, obj, nil)
-    flush(:revisions, obj)
-    flush(:changes)
-    flush(:types)
+    flush(:revisions)
+    flush(:page_contents)
+    flush(:namespaces)
   end
 
   def rename(old_obj, new_obj, message, user)
-    check_obj(old_obj)
-    check_obj(new_obj)
-    check_user(user)
     old_obj = normalize(old_obj)
     new_obj = normalize(new_obj)
-    raise ProviderError.new('Target exists') if exists?(new_obj)
     message = '-' if message.nil? || message.empty?
-    FileUtils.mkdir_p(path("#{@repo.working_dir}/#{new_obj}"))
-    File.open("#{@repo.working_dir}/#{new_obj}", 'w') do |f|
-      f.write(contents(old_obj))
+    
+    raise ProviderError.new('Target exists') if exists?(new_obj)
+    
+    @repo.move(old_obj, new_obj)
+    pathspecs = [old_obj, new_obj]
+    if exists?("#{old_obj}_att")
+      @repo.move("#{old_obj}_att", "#{new_obj}_att")
+      pathspecs += ["#{old_obj}_att", "#{new_obj}_att"]
     end
-    @repo.remove(old_obj)
-    @repo.add(new_obj)
-    @repo.commit_index(
-        message,
-        :author => format_user(user)
-    )
-    push
-    flush(:exists?, old_obj, nil)
-    flush(:exists?, new_obj, nil)
-    flush(:contents, old_obj, nil)
-    flush(:contents, new_obj, nil)
-    flush(:revisions, old_obj)
-    flush(:revisions, new_obj)
+    @repo.commit(message, format_user(user), pathspecs)
+    git_push
+    
+    flush(:exists?)
+    flush(:page_contents)
+    flush(:revisions)
+    flush(:revisions)
     flush(:changes)
-    flush(:types)
+    flush(:namespaces)
   end
 
   def delete(obj, message, user)
-    check_obj(obj)
-    check_user(user)
     obj = normalize(obj)
-    raise ProviderError.new('Object don\'t exists') unless exists?(obj)
     message = '-' if message.nil? || message.empty?
+    
+    raise PageNotExists unless exists?(obj)
+    
     @repo.remove(obj)
-    @repo.commit_index(
-        message,
-        :author => format_user(user)
-    )
-    push
+    pathspecs = [obj]
+    if exists?("#{obj}_att")
+      @repo.remove("#{obj}_att")
+      pathspecs << "#{obj}_att"
+    end
+    @repo.commit(message, format_user(user), pathspecs)
+    git_push
+    
     flush(:exists?, obj, nil)
-    flush(:contents, obj, nil)
-    flush(:revisions, obj)
+    flush(:page_contents)
+    flush(:revisions)
     flush(:changes)
-    flush(:types)
+    flush(:namespaces)
   end
 
-  def revisions(obj)
-    check_obj(obj)
+  def revisions(obj, options)
     obj = normalize(obj)
+    
+    raise PageNotExists.new(obj) unless existed?(obj)
+    
+    parts = obj.split('/')
+    
     revs = []
-    @repo.log(@branch, obj).each do |commit|
-      deleted = false
-      commit.diffs.each do |diff|
-        next unless diff.a_path == obj
-        deleted = diff.deleted_file
+    @repo.log(@branch, obj, :limit => options[:limit], :since => options[:since]).each do |commit|
+      next if commit[:changes].blank?
+      mode = case commit[:changes].first[:mode]
+        when 'D'
+          :deleted
+        when 'A'
+          :created
+        when 'M'
+          :modified
+        else
+          :none
       end
-      revs << Revision.new(
-          commit.sha,
-          commit.id_abbrev.upcase,
-          (deleted ? -1 : size(obj, commit.sha)),
-          Raki::Authenticator.user_for(:username => commit.author.name, :email => commit.author.email),
-          commit.authored_date,
-          commit.message,
-          deleted
-        )
+      revs << {
+        :id => commit[:id].downcase,
+        :version => commit[:id][0..6].upcase,
+        :date => commit[:date],
+        :message => commit[:message],
+        :user => user_for(commit[:author]),
+        :mode => mode,
+        :size => size(obj, commit[:id]),
+        :type => (parts.length == 2) ? :page : :attachment
+      }
     end
+    
     revs
   end
   cache :revisions
 
-  def all(dir, revision=nil)
-    check_obj(dir)
-    revision = 'HEAD' if revision.nil?
+  def all(dir, fp=2)
+    dir = normalize(dir)
+    revision ||= 'HEAD'
+    
     files = []
-    begin
-      @repo.tree(revision, "#{dir}/").blobs.each do |blob|
-        files << normalize(file(blob.name))
-      end
-    rescue => e
-    end
+    @repo.tree(revision, dir).each do |child|
+      files << child[:filename] if child[:type] == 'blob'
+    end if exists?(dir)
+    
     files.sort { |a,b| a <=> b }
   end
   cache :all
 
-  def changes(type, dir, amount=0, page=nil)
-    check_obj(dir)
+  def changes(namespace, dir, options={}, att=false)
+    dir = normalize(dir)
+    
     changes = []
-    all(dir).each do |obj|
-      revisions("#{dir}/#{obj}").each do |revision|
-        if page.nil?
-          changes << Change.new(type, normalize(obj), revision)
-        else
-          changes << Change.new(type, normalize(page), revision, normalize(obj))
-        end
+    @repo.log(@branch, dir, :limit => options[:limit], :since => options[:since]).each do |commit|
+      commit[:changes].each do |change|
+        next if !att && change[:file] =~ /_att\//
+        mode = case change[:mode]
+          when 'D'
+            :deleted
+          when 'A'
+            :created
+          when 'M'
+            :modified
+          else
+            :none
+          end
+        parts = change[:file].split('/')
+        type = att ? :attachment : :page
+        page_name = (type == :attachment) ? parts[1].gsub(/_att$/, '') : parts[1]
+        next unless valid_page_name(page_name)
+        changes << {
+          :id => commit[:id].downcase,
+          :version => commit[:id][0..6].upcase,
+          :date => commit[:date],
+          :message => commit[:message],
+          :user => user_for(commit[:author]),
+          :mode => mode,
+          :size => size(change[:file], commit[:id]),
+          :type => type,
+          :page => {:namespace => namespace, :name => page_name},
+          :attachment => parts[2]
+        }
       end
     end
-    changes = changes.sort { |a,b| b.revision.date <=> a.revision.date }
-    if amount.nil?
-      changes
-    else
-      changes[0..(amount-1)]
-    end
+    
+    changes
   end
   cache :changes
   
-  def diff(obj, revision_from=nil, revision_to=nil)
-    check_obj(obj)
+  def existed?(obj)
     obj = normalize(obj)
-    revisions = revisions(obj)
-    revision_from = revisions[revisions.length-2].id if revision_from.nil?
-    if revision_to.nil?
-      rev_from = nil
-      revisions.each do |rev|
-        rev_from = rev if rev.id == revision_from
-      end
-      revision_to = revisions[revisions.index(rev_from)-1].id
-    end
-    diff_lines = []
-    @repo.diff(revision_to, revision_from, obj).each do |diff|
-      diff_lines += diff.diff.split("\n")
-    end
-    Diff.new(diff_lines)
+    
+    !@repo.log('HEAD', obj, :limit => 1).empty? rescue false
   end
-  cache :diff
+  cache :existed?
   
   def size(obj, revision)
-    obj = normalize(obj)
-    path, file = split_object(obj)
-    @repo.tree(revision, path).blobs.each do |blob|
-      return blob.size if blob.name == obj
-    end
-    -1
+    return nil unless exists?(obj, revision)
+    @repo.size(revision, obj)
   end
   cache :size, :ttl => 3600
-  
-  def split_object(obj)
-    return obj.gsub(/[^\/]+$/, ''), obj.gsub(/^(.*\/)*/, '')
-  end
   
   def path(obj)
     obj.gsub(/[^\/]+$/, '')
@@ -372,19 +361,26 @@ class GitProvider < Raki::AbstractProvider
   cache :normalize, :ttl => 86400
   
   def format_user(user)
-    if user.email.nil?
-      "#{user.username} <#{user.username}@#{Raki.app_name.underscore}>"
-    else
-      "#{user.username} <#{user.email}>"
-    end
+    "#{user.username} <#{user.email}>"
   end
   
-  def push
-    @repo.push('origin')
+  def valid_page_name(name)
+    name =~ /^[^\.]+|\d+\.\d+\.\d+\.\d+$/i
   end
   
-  def pull
-    @repo.pull('origin')
+  def user_for(commit_author)
+    Raki::Authenticator.user_for(:username => commit_author[:name], :email => commit_author[:email])
+  end
+  cache :user_for, :ttl => 30
+  
+  def git_push
+    @repo.push('origin', @branch)
+    logger.debug "Pushed to '#{@repo.remotes['origin'][:url]}'"
+  end
+  
+  def git_pull
+    @repo.pull('origin', @branch)
+    logger.debug "Pulled from '#{@repo.remotes['origin'][:url]}'"
   end
 
   def logger

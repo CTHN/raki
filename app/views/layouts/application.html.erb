@@ -1,54 +1,77 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-
-<html>
-	<head>
-		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <meta name="generator" content="Raki wiki engine"/>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="generator" content="Raki wiki engine" />
     <title><%=h "#{Raki.app_name} :: #{@title}" %></title>
-
-    <%= stylesheet_link_tag 'screen', :media => 'all' %>
-    <%= stylesheet_link_tag 'print', :media => 'print' %>
-    <%= stylesheet_link_tag 'raki', :media => 'all' %>
-    <%= stylesheet_link_tag 'application', :media => 'all' %>
-		<!--[if lt IE 8]><%= stylesheet_link_tag 'ie', :media => 'all' %><![endif]-->
-    <%= plugin_stylesheets %>
-
+    <%=stylesheet_link_tag 'application', :media => 'all' %>
+    <%=plugin_stylesheets %>
+    <%=javascript_include_tag 'application' %>
     <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
     <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
-	</head>
-
-	<body>
-    <%= image_tag('cables.png', :alt => 'cables', :id => 'cables') %>
-    <%= link_to image_tag('logo.png', :alt => 'cthn logo'), {:controller => 'page', :action => 'redirect_to_frontpage'}, :id => 'logo' %>
-    <%= link_to image_tag('rss.png', :alt => 'Feed'), {:controller => 'feed', :action => 'feed'}, {:title => t('feed', :app_name => Raki.app_name), :id => 'rss'} %>
-    <%= auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'feed'}, :title => t('feed', :app_name => Raki.app_name)) %>
-
-    <nav id="header">
-      <%= render :partial => "#{controller_name}/tabs" %>
-      <%= render :partial => 'layouts/auth' %>
-		</nav>
-
-		<div id="content">
-      <div class="canvas">
-				<nav id="navigation">
-				  <%= insert_page :page, 'LeftMenu' %>
-        </nav>
-
-        <!-- TODO: Make this dynamic -->
-        <%= image_tag('header/2m.png', :alt => 'header image', :id => 'headerimage') %>
-        <article>
-          <h1><%= h @title %></h1>
-          <%= yield %>
-				</article>
-
-				<span class="clearfix"></span>
-			</div>
-		</div>
-
-    <section id="footer">
-      <%= render :partial => "layouts/page_footer" %>
-		</section>
-	</body>
+    <%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'global'}, :title => t('feed.global', :app_name => Raki.app_name) %>
+	<% if @page %>
+	  <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'namespace', :namespace => h(@page.namespace)}, :title => t('feed.namespace', :namespace => h(@page.namespace))) %>
+      <% if @page.authorized?(User.current, :view) %>
+	    <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'page', :namespace => h(@page.namespace), :page => h(@page.name)}, :title => t('feed.page', :namespace => h(@page.namespace), :page => h(@page.name))) %>
+	  <% end %>
+	<% end %>
+	<%=meta_tag 'csrf-param', 'authenticity_token' %>
+	<%=meta_tag 'csrf-token', form_authenticity_token %>
+	<%=meta_tag 'raki-url-prefix', url_prefix %>
+	<% if @page %>
+	  <%=meta_tag 'raki-namespace', @page.namespace %>
+	  <%=meta_tag 'raki-page', @page.name %>
+	  <%=meta_tag 'raki-action', action_name %>
+	  <%=meta_tag 'raki-view-url', @page.url(:view) %>
+	  <%=meta_tag 'raki-edit-url', @page.url(:edit) %>
+	  <%=meta_tag 'raki-preview-url', @page.url(:preview) %>
+	<% end %>
+  </head>
+  <body>
+    <div id="container">
+      <div id="left">
+        <div id="logo">
+          <%=link_to image_tag('raki_logo.png', :alt => 'Raki'), :controller => 'page', :action => 'redirect_to_frontpage' %>
+        </div>
+        <div id="left_menu">
+          <%=insert_page Page.find(:page, 'LeftMenu') %>
+        </div>
+        <div id="left_menu_footer">
+          <%=insert_page Page.find(:page, 'LeftMenuFooter') %>
+        </div>
+		<div id="global_feed">
+          <%=link_to image_tag('feed.png', :alt => 'Feed'), {:controller => 'feed', :action => 'global'}, {:title => t('feed.global', :app_name => Raki.app_name), :class => 'feed'} %>
+        </div>
+        <div id="application_info"><%=link_to 'Raki', 'http://github.com/ydkn/raki' %> v<%=Raki.version %></div>
+      </div>
+      <div id="main">
+        <div id="auth">
+          <%=render :partial => 'layouts/auth' %>
+        </div>
+        <div id="page_title"><%=h @title %></div>
+        <div id="visted_pages">
+	      <% unless visited_pages.empty? %>
+	        <%=t 'visited_pages' %>:
+            <%=visited_pages.collect{|p| link_to h("#{p.namespace}/#{p.name}"), p.url}.join(', ') %>
+          <% end %>
+        </div>
+        <div id="content_container">
+          <div id="controls">
+            <%=render :partial => "#{controller_name}/tabs" %>
+          </div>
+          <div id="page">
+            <%=yield %>
+          </div>
+          <div id="page_footer">
+			<%=render :partial => "#{controller_name}/footer" %>
+		  </div>
+          <div id="footer">
+		    Icons by Yusuke Kamiyamane <a href="http://p.yusukekamiyamane.com/">http://p.yusukekamiyamane.com/</a>.
+		  </div>
+        </div>
+        <br class="clear" />
+      </div>
+    </div>
+  </body>
 </html>
-

@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'treetop'
-require 'syntax_nodes.rb'
+require 'raki_syntax'
 
 class RakiParser < Raki::AbstractParser
 
@@ -25,15 +25,62 @@ class RakiParser < Raki::AbstractParser
 
   def initialize params={}
     Treetop.load "#{File.dirname(__FILE__)}/raki_syntax"
-    RakiSyntaxParser.send :include, Cacheable
-    RakiSyntaxParser.send :cache, :parse
+    if Rails.env != 'test'
+      RakiSyntaxParser.send :include, Cacheable
+      RakiSyntaxParser.send :cache, :parse
+    end
     @parser = RakiSyntaxParser.new
   end
 
   def parse text, context={}
     output = @parser.parse text
-    return nil if output.nil?
-    output.to_html(context)
+    return nil unless output
+    output.enable_raki_syntax
+    output.to_html(context).html_safe
+  rescue => e
+    Rails.logger.error e
+    raise ParserError.new(e)
+  end
+  
+  def link_update text, from, to, context={}
+    output = @parser.parse text
+    output.enable_raki_syntax
+    return [nil, nil] unless output
+    if output.link_update(from, to, context)
+      [true, output.to_src(context)]
+    else
+      [false, text]
+    end
+  end
+  
+  def sections text, context={}
+    output = @parser.parse text
+    output.enable_raki_syntax
+    output.sections context
+  end
+  
+  def toolbar_items
+    [
+      [
+        {:id => 'link', :prefix => '[', :suffix => ']'},
+        {:id => 'heading1', :'line-start' => '!'},
+        {:id => 'heading2', :'line-start' => '!!'},
+        {:id => 'heading3', :'line-start' => '!!!'}
+      ],
+      [
+        {:id => 'bold', :enclosed => '*'},
+        {:id => 'italic', :enclosed => '~'},
+        {:id => 'underline', :enclosed => '_'},
+        {:id => 'strike', :enclosed => '-'}
+      ],
+      [
+        {:id => 'hline', :line => '----'}
+      ],
+      [
+        {:id => 'orderedlist', :'multiline-start' => '# '},
+        {:id => 'list', :'multiline-start' => '* '},
+      ]
+    ]
   end
 
 end

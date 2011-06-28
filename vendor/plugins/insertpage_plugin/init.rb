@@ -23,31 +23,24 @@ Raki::Plugin.register :insertpage do
   version '0.1'
 
   execute do
-    parts = body.strip.split /\//, 2
-    if parts.length == 2
-      type = parts[0].strip.to_sym
-      page = parts[1].strip
-    else
-      type = context[:type]
-      page = parts[0].nil? ? nil : parts[0].strip
-    end
-    key = [type, page]
+    page = page_for body.strip
     
-    raise Raki::Plugin::PluginError.new(t 'insertpage.no_page') if page.nil? || page.empty?
+    key = [page.namespace, page.name]
     
-    if authorized? type, page, :view
-      raise Raki::Plugin::PluginError.new(t 'page.not_exists.msg') unless page_exists? type, page
+    raise t('insertpage.no_page') unless page
+    
+    if page.authorized?(User.current, :view)
+      raise t('insertpage.not_exists', :namespace => h(page.namespace), :name => h(page.name)) unless page.exists?
 
       context[:subcontext][:insertpage] ||= []
-      raise Raki::Plugin::PluginError.new(t 'insertpage.already_included', :name => params[:name]) if context[:subcontext][:insertpage].include? key
+      raise t('insertpage.already_included', :namespace => h(page.namespace), :name => h(page.name)) if context[:subcontext][:insertpage].include? key
+      
       context[:subcontext][:insertpage] << key
-
-      context[:type] = type
       context[:page] = page
-
-      parsed_page!(type, page)
+      
+      render :inline => page.render(context)
     else
-      ""
+      render :nothing => true
     end
   end
 

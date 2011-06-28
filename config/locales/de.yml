@@ -23,7 +23,12 @@ de:
     
   forbidden: Keine Berechtigung
 
-  feed: Newsfeed für %{app_name}
+  feed:
+    global: Newsfeed für %{app_name}
+    namespace: Newsfeed für %{namespace}
+    page: Newsfeed für %{namespace}/%{page}
+  
+  visited_pages: Bisher besucht
 
   page:
 
@@ -35,20 +40,30 @@ de:
       edit_link: angelegt
 
     tab:
-      view: Lesen
+      view: Anzeigen
       info: Information
       edit: Bearbeiten
       attachments: Anhänge
 
+    view:
+      not_current: Dies ist nicht die aktuelle Version
+
     edit:
       save: Speichern
       preview: Vorschau
+      preview_info: Dies ist nur eine <strong>Vorschau</strong>!
+      live_preview: Schnellvorschau
       abort: Abbrechen
+      keep_editing: Weiter bearbeiten
       message: Kommentar
       rename: Seite umbenennen
       delete: Komplette Seite löschen
+      delete_question: Komplette Seite löschen?
       page_already_exists: Seite existiert bereits.
       no_permission_to_create: Keine Berechtigung um Seite anzulegen
+      no_permission_to_delete: Keine Berechtigung um Seite zu löschen
+      locked: Der Benutzer <b>%{user}</b> ist gerade dabei diese Seite zu bearbeiten.
+      no_contents: Leere Seite
 
     info:
       versions: Versionen
@@ -59,8 +74,9 @@ de:
         user: Autor
         message: Kommentar
       diff: Unterschiede
-
-    feed: Newsfeed für %{type}/%{page}
+    
+    render:
+      error: Rendern der Seite fehlgeschlagen
 
   attachment:
     list: Anhänge
@@ -74,18 +90,30 @@ de:
     actions: Aktionen
     
     delete: Löschen
+    delete_question: Anhang löschen?
 
     upload:
       file: Datei
       message: Kommentar
       save: Hochladen
+      no_permission_to_create: Keine Berechtigung um Anhang anzulegen
+      no_permission_to_delete: Keine Berechtigung um Anhang zu löschen
 
     info:
         versions: Versionen
+  
+  diff:
+    no_diff: Keine Unterschiede vorhanden
 
   parser:
     parsing_error: Parsen der Seite schlug fehl
 
   plugin:
     error: Plugin '%{name}' gab einen Fehler aus.
+    not_found: Das Plugin '%{name}' ist nicht installiert
     missing_parameter: Fehlende Parameter
+    not_available_in_live_preview: Nicht verfügbar in Schnellvorschau
+
+  toolbar:
+    bold: Fett
+    italic: Kursiv

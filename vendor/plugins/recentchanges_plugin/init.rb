@@ -22,12 +22,19 @@ Raki::Plugin.register :recentchanges do
   author 'Florian Schwab'
   version '0.1'
 
+  disable_in_live_preview
+  
   add_stylesheet '/plugin_assets/recentchanges_plugin/stylesheets/recentchanges.css'
   
   include RecentchangesPluginHelper
 
   execute do
-    render :recentchanges
+    @namespaces = params[:namespace].nil? ? [context[:page].namespace] : params[:namespace].split(',')
+    @namespaces = nil if params[:namespace] == 'all'
+
+    @options = {}
+    @options[:limit] = (params[:limit] || 50).to_i
+    @options[:since] = (params[:since] || 30).to_i.days.ago
   end
 
 end

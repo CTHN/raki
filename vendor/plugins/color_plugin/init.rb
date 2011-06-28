@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Raki::Plugin.register /^red|blue|green|yellow|grey|black|white|[0-9a-f]{3}|[0-9a-f]{6}$/i do
+Raki::Plugin.register /^(red|blue|green|yellow|grey|black|white|[0-9a-f]{3}|[0-9a-f]{6})$/i do
   
   name 'Color Plugin'
   description 'Changes the text color'
@@ -32,13 +32,13 @@ Raki::Plugin.register /^red|blue|green|yellow|grey|black|white|[0-9a-f]{3}|[0-9a
         :black => '000',
         :white => 'fff'
       }
-      
+    
     if callname.to_s =~ /^[0-9a-f]{3}|[0-9a-f]{6}$/i
-      "<font style=\"color:##{callname.to_s};\">#{parse context[:type], body}</font>"
+      render :inline => "<font style=\"color:##{callname.to_s};\">#{parse context[:page].namespace, body}</font>"
     elsif colors.key? callname.to_sym
-      "<font style=\"color:##{colors[callname.to_sym]};\">#{parse context[:type], body}</font>"
+      render :inline => "<font style=\"color:##{colors[callname.to_sym]};\">#{parse context[:page].namespace, body}</font>"
     else
-      raise Raki::Plugin::PluginError.new t 'color.invalid_color'
+      raise t('color.invalid_color')
     end
   end
   
