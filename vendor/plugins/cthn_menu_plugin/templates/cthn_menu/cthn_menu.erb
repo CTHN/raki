@@ -1,0 +1,11 @@
+<% @areas.each do |area| %>
+  <ul>
+    <% area.each do |item| %>
+      <% if item.is_a?(String) %>
+        <li><a href="<%=item[:url] %>"><span><%=item[:title] %></span></a></li>
+      <% else %>
+        <li<%=item[:page] == @page ? ' class="selected"' : '' %>><a href="<%=item[:page].url %>"><span><%=item[:title] %></span></a></li>
+      <% end %>
+    <% end %>
+  </ul>
+<% end %>
