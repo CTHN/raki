@@ -36,7 +36,7 @@ a#rss {
   right: 30px;
 }
 
-header {
+body > header {
 	height: 38px;
 	background: transparent url(../images/header_bg.png) no-repeat;
 	padding-right: 170px;
@@ -88,8 +88,8 @@ article {
     top: 15px;
   }
   
-  article h1 {
-  
+  h1 {
+    text-shadow: #555 3px 3px 5px;
   }
   article h2 {
     border-bottom: 1px solid #ccc;
