@@ -17,9 +17,9 @@
 # Raki settings
 
 all: &all
-  app_name: Raki
+  app_name: CTHN Wiki
   
-  frontpage: page/Main
+  frontpage: page/cthn
   userpage_namespace: user
   index_page: Main
   
@@ -29,9 +29,10 @@ all: &all
   providers:
     :default:
       provider: git
-      path: /path/to/git/repo
+      path: git@github.com:ydkn/cthn_wiki.git
       branch: master
       refresh: 600
+      timeout: 600
       
   parsers:
     :default:

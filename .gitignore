@@ -1,5 +1,3 @@
-config/*.yml
-
 public/plugin_assets/
 
 .bundle
