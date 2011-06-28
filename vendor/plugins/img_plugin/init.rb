@@ -29,14 +29,19 @@ Raki::Plugin.register :img do
     namespace = params[:namespace].nil? ? context[:namespace].to_s : params[:namespace]
     page = params[:page].nil? ? context[:page].to_s : params[:page]
     
-    url = url?(img) ? img : "/#{namespace}/#{page}/attachment/#{img}"
+    url = url?(img) ? img : "#{namespace}/#{page}/attachment/#{img}"
     
     alt = params[:alt].nil? ? img : params[:alt]
     
     attributes = []
     attributes << "width=\"#{h params[:width]}\"" unless params[:width].nil?
     attributes << "height=\"#{h params[:height]}\"" unless params[:height].nil?
-    
+
+    # Float the image
+    if !params[:position].nil? and %w(left center right).include?(params[:position])
+      attributes << "class=\"#{params[:position]}\""
+    end
+
     render :inline => "<img src=\"#{h url}\" alt=\"#{h alt}\" #{attributes.join ' '} />"
   end
 
