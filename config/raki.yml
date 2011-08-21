@@ -31,7 +31,7 @@ all: &all
       provider: git
       path: git@github.com:ydkn/cthn_wiki.git
       branch: master
-      refresh: 600
+      refresh: 60
       timeout: 600
       
   parsers:
