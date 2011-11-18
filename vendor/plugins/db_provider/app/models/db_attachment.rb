@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class DBAttachment < ActiveRecord::Base
+class DBAttachment < DbProviderBase
   set_table_name 'attachments'
   
   has_many :revisions, :class_name => 'DBAttachmentRevision', :foreign_key => :attachment_id

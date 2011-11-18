@@ -1,7 +1,6 @@
-public/plugin_assets/
-
 .bundle
-doc/app
+public/assets
+config/*.yml
 db/*.sqlite3
 log/*.log
-tmp/**/*
+tmp/

@@ -46,7 +46,7 @@ en:
       attachments: Attachments
       
     view:
-      not_current: This is not the current version of the page
+      not_current: "This is an old revision, <a href=\"%{url}\">show the latest version</a>."
 
     edit:
       save: Save
@@ -117,3 +117,15 @@ en:
   toolbar:
       bold: Bold
       italic: Italic
+      underline: Underlined
+      strike: Strikethrough
+      heading1: Headline 1
+      heading2: Headline 2
+      heading3: Headline 3
+      heading4: Headline 4
+      heading5: Headline 5
+      heading6: Headline 6
+      hline: Horizontal line
+      orderedlist: Ordered list
+      list: Unordered list
+      link: Link

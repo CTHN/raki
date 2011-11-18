@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class DBPageRevision < ActiveRecord::Base
+class DBPageRevision < DbProviderBase
   set_table_name 'page_revisions'
   
   belongs_to :page, :class_name => 'DBPage', :foreign_key => :page_id

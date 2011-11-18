@@ -46,7 +46,7 @@ de:
       attachments: Anhänge
 
     view:
-      not_current: Dies ist nicht die aktuelle Version
+      not_current: "Dies ist eine alte Version, <a href=\"%{url}\">die neueste Version anzeigen</a>."
 
     edit:
       save: Speichern
@@ -117,3 +117,15 @@ de:
   toolbar:
     bold: Fett
     italic: Kursiv
+    underline: Unterstrichen
+    strike: Durchgestrichen
+    heading1: Überschrift 1
+    heading2: Überschrift 2
+    heading3: Überschrift 3
+    heading4: Überschrift 4
+    heading5: Überschrift 5
+    heading6: Überschrift 6
+    hline: Horizontale Linie
+    orderedlist: Geordnete Liste
+    list: Ungeordnete Liste
+    link: Link
