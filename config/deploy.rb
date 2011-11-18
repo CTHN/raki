@@ -1,7 +1,7 @@
 set :application, "CTHN website"
-set :repository,  "git://github.com/aaronmueller/cthn-website.git"
-set :deploy_to, "/srv/www/vhosts/www.cthn.de/cthn-website/"
-set :branch, "master"
+set :repository,  "https://github.com/aaronmueller/cthn-website.git"
+set :deploy_to, "/srv/www/vhosts/www.cthn.de/cthn-website-test/"
+set :branch, "rails31"
 
 set :use_sudo, false
 set :user, "cthn"
