@@ -16,11 +16,13 @@ group :assets do
 end
 
 group :test do
-  gem 'execjs'
-  gem 'therubyracer'
-  
   # Pretty printed test output
   gem 'turn', :require => false
+end
+
+group :production, :test do
+  gem 'execjs'
+  gem 'therubyracer'
 end
 
 # Plugins
