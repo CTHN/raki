@@ -38,7 +38,7 @@ a#rss {
 
 body > header {
 	height: 38px;
-	background: transparent url(../images/header_bg.png) no-repeat;
+	background: transparent url(header_bg.png) no-repeat;
 	padding-right: 170px;
 	text-align: right;
 }
@@ -51,7 +51,7 @@ body > header {
   }
 
 div#content {
-	background: transparent url(../images/content_bg.png) repeat-y;
+	background: transparent url(content_bg.png) repeat-y;
 }
 	div#content div.canvas {
 		margin: 0 30px 0 30px;
@@ -122,7 +122,7 @@ article {
 
 
 nav#navigation {
-	background: transparent url(../images/navigation_bg.jpg) repeat-x;
+	background: transparent url(navigation_bg.jpg) repeat-x;
 	padding-top: 10px;
 	margin: 0 0 30px 0;
 	width: 190px;
@@ -139,7 +139,7 @@ nav#navigation {
 				margin: -3px 0 0 -5px;
 				width: 195px;
 				height: 32px;
-				background: transparent url(../images/navigation_entry_bg.png) no-repeat;
+				background: transparent url(navigation_entry_bg.png) no-repeat;
 				display: block;
 				text-decoration: none;
 				font-size: 1.1em;
@@ -148,7 +148,7 @@ nav#navigation {
 			
 			nav#navigation ul li a:hover,
 			nav#navigation ul li a:active {
-				background: transparent url(../images/navigation_entry_hover_bg.png) no-repeat;
+				background: transparent url(navigation_entry_hover_bg.png) no-repeat;
 			}
 				nav#navigation ul li a span {
 					display: block;
@@ -158,7 +158,7 @@ nav#navigation {
 			nav#navigation ul li.selected a:link,
 			nav#navigation ul li.selected a:visited {
 				color: white;
-				background: transparent url(../images/navigation_entry_selected_bg.png) no-repeat;
+				background: transparent url(navigation_entry_selected_bg.png) no-repeat;
 			}
 			
 			nav#navigation ul li:first-child a:link,
@@ -166,17 +166,17 @@ nav#navigation {
 				margin: 0px 0 0 -5px;
 				height: 32px;
 				padding-top: 4px;
-				background: transparent url(../images/navigation_entryfirst_bg.png) no-repeat;
+				background: transparent url(navigation_entryfirst_bg.png) no-repeat;
 			}
 			
 			nav#navigation ul li:first-child a:hover,
 			nav#navigation ul li:first-child a:active {
-				background: transparent url(../images/navigation_entryfirst_hover_bg.png) no-repeat;
+				background: transparent url(navigation_entryfirst_hover_bg.png) no-repeat;
 			}
 			
 			nav#navigation ul li:first-child.selected a:link,
 			nav#navigation ul li:first-child.selected a:visited {
-				background: transparent url(../images/navigation_entryfirst_selected_bg.png) no-repeat;
+				background: transparent url(navigation_entryfirst_selected_bg.png) no-repeat;
 			}
 				nav#navigation ul li.first a span {
 					padding: 12px 0 0 20px;
@@ -187,14 +187,14 @@ footer {
 	font-size: .8em;
 	color: #888;
 	text-align: right;
-	background: transparent url(../images/footer_bg.png) no-repeat;
+	background: transparent url(footer_bg.png) no-repeat;
   margin-bottom: 20px;
 }
 
 #auth_username {
     margin-left: 40px !important;
     padding-left: 20px;
-    background: url(../images/user.png) no-repeat;
+    background: url(user.png) no-repeat;
 }
 
 div#login {

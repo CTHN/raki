@@ -1,12 +1,13 @@
 set :application, "CTHN website"
-set :repository,  "https://github.com/aaronmueller/cthn-website.git"
-set :deploy_to, "/srv/www/vhosts/www.cthn.de/cthn-website-test/"
-set :branch, "rails31"
-
-set :use_sudo, false
-set :user, "cthn"
 
 set :scm, :git
+set :repository,  "https://github.com/aaronmueller/cthn-website.git"
+set :branch, "rails31"
+
+set :deploy_to, "/srv/www/vhosts/www.cthn.de/cthn-website-test/"
+set :rake, 'bundle exec rake'
+set :use_sudo, false
+set :user, "cthn"
 
 role :web, "phonos.sickos.org"
 role :app, "phonos.sickos.org"
@@ -46,6 +47,13 @@ namespace :deploy do
   task :restart, :roles => :app, :except => { :no_release => true } do
     run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
   end
+  
+  task :precompile_assets, :roles => :app do
+    run "cd #{current_path} && rm -rf public/assets/*"
+    run "cd #{current_path} && RAILS_ENV=#{rails_env} #{rake} assets:precompile"
+  end
 end
 
 after 'deploy:update_code', 'deploy:migrate'
+before 'deploy:start', 'deploy:precompile_assets'
+before 'deploy:restart', 'deploy:precompile_assets'

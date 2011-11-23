@@ -19,7 +19,8 @@
       <div class="canvas">
         <nav id="navigation">
           <%=Raki::Parser[:page].parse '\\cthn_menu\\', context %>
-        <%= image_tag('header/2m.png', :alt => 'header image', :id => 'headerimage') %>
+        </nav>
+          <%= image_tag('header/2m.png', :alt => 'header image', :id => 'headerimage') %>
         <h1 id="header_path"><%= h @title %></h1>
         
         <article>

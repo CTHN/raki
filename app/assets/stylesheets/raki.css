@@ -169,7 +169,7 @@ div.render-error {
     padding: 1em 1em 1em 3em;
     background-position: .8em .9em;
     background-repeat: no-repeat;
-	background-image: url(../images/error.png);
+	background-image: url(error.png);
     background-color: #ffe0e0;
     border: 1px solid #f0b0b0;
 }
@@ -207,25 +207,25 @@ span.invalid-page {
 }
 
 .information {
-    background-image: url(../images/information.png);
+    background-image: url(information.png);
     background-color: #e0e0ff;
     border: 1px solid #b0b0f0;
 }
 
 .error {
-    background-image: url(../images/error.png);
+    background-image: url(error.png);
     background-color: #ffe0e0;
     border: 1px solid #f0b0b0;
 }
 
 .warning {
-    background-image: url(../images/warning.png);
+    background-image: url(warning.png);
     background-color: #ffff96;
     border: 1px solid #f0f087;
 }
 
 .confirmation {
-    background-image: url(../images/confirmation.png);
+    background-image: url(confirmation.png);
     background-color: #c8ff96;
     border: 1px solid #b9f087;
 }
