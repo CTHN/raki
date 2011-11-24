@@ -2,12 +2,12 @@ set :application, "CTHN website"
 
 set :scm, :git
 set :repository,  "https://github.com/aaronmueller/cthn-website.git"
-set :branch, "rails31"
+set :branch,      "master"
 
-set :deploy_to, "/srv/www/vhosts/www.cthn.de/cthn-website-test/"
-set :rake, 'bundle exec rake'
-set :use_sudo, false
-set :user, "cthn"
+set :deploy_to,   "/srv/www/vhosts/www.cthn.de/cthn-website/"
+set :rake,        'bundle exec rake'
+set :use_sudo,    false
+set :user,        "cthn"
 
 role :web, "phonos.sickos.org"
 role :app, "phonos.sickos.org"
