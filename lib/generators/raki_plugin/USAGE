@@ -2,4 +2,4 @@ Description:
     The plugin generator creates stubs for a new Raki plugin.
 	
 Example:
-    ./script/generate raki_plugin drawing
+    rails g raki_plugin drawing

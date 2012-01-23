@@ -14,37 +14,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-class RakiPluginGenerator < Rails::Generator::NamedBase
-  
-  attr_reader :plugin_path, :plugin_name, :plugin_class, :plugin_dir, :plugin_pretty_name
-  
-  def initialize runtime_args, runtime_options = {}
-    super
-    @plugin_dir = "raki_#{file_name.underscore}"
+class RakiPluginGenerator < Rails::Generators::NamedBase
+  source_root File.expand_path('../templates', __FILE__)
+  attr_reader :plugin_name, :plugin_class, :plugin_pretty_name
+
+  def generate_layout
+    plugin_path = "vendor/plugins/raki_#{file_name.underscore}"
+
     @plugin_name = file_name.underscore
     @plugin_class = file_name.classify
     @plugin_pretty_name = file_name.underscore.titleize
-    @plugin_path = "vendor/plugins/#{plugin_dir}"
+
+    empty_directory "#{plugin_path}"
+    empty_directory "#{plugin_path}/app"
+    empty_directory "#{plugin_path}/assets"
+    empty_directory "#{plugin_path}/assets/images"
+    empty_directory "#{plugin_path}/assets/stylesheets"
+    empty_directory "#{plugin_path}/config/locales"
+    empty_directory "#{plugin_path}/templates"
+    empty_directory "#{plugin_path}/templates/#{@plugin_name}"
+    empty_directory "#{plugin_path}/test"
+
+    template 'README.rdoc.erb', "#{plugin_path}/README.rdoc"
+    template 'init.rb.erb', "#{plugin_path}/init.rb"
+    template 'en.yml.erb', "#{plugin_path}/config/locales/en.yml"
+    template 'plugin_test.rb.erb', "#{plugin_path}/test/#{@plugin_name}_test.rb"
+    template 'template.erb', "#{plugin_path}/templates/#{@plugin_name}/#{@plugin_name}.erb"
+    template 'gitkeep', "#{plugin_path}/app/.gitkeep"
   end
-  
-  def manifest
-    record do |m|
-      m.directory "#{plugin_path}/app"
-      m.directory "#{plugin_path}/assets"
-      m.directory "#{plugin_path}/assets/images"
-      m.directory "#{plugin_path}/assets/stylesheets"
-      m.directory "#{plugin_path}/config/locales"
-      m.directory "#{plugin_path}/templates"
-      m.directory "#{plugin_path}/templates/#{@plugin_name}"
-      m.directory "#{plugin_path}/test"
-      
-      m.template 'README.rdoc.erb', "#{plugin_path}/README.rdoc"
-      m.template 'init.rb.erb', "#{plugin_path}/init.rb"
-      m.template 'en.yml.erb', "#{plugin_path}/config/locales/en.yml"
-      m.template 'plugin_test.rb.erb', "#{plugin_path}/test/#{@plugin_name}_test.rb"
-      m.template 'template.erb', "#{plugin_path}/templates/#{@plugin_name}/#{@plugin_name}.erb"
-      m.template 'gitkeep', "#{plugin_path}/app/.gitkeep"
-    end
-  end
-  
 end
+
