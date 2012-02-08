@@ -85,7 +85,7 @@ class Page
   
   def head_revision
     return nil unless provider.page_exists?(namespace, name)
-    hash_to_revision(provider.page_revisions(namespace, name, :limit => 1).first)
+    @head_revision ||= hash_to_revision(provider.page_revisions(namespace, name, :limit => 1).first)
   end
   
   def attachments
@@ -109,7 +109,12 @@ class Page
       options = options.symbolize_keys
       options[:revision] = options[:revision].id if options.key?(:revision) && options[:revision].is_a?(Revision)
     end
-    options = {:controller => 'page', :action => 'view', :namespace => namespace, :page => name, :revision => (revision ? revision.id : nil)}.merge options
+    options = {
+      :controller => 'page',
+      :action => 'view',
+      :namespace => namespace,
+      :page => name,
+      :revision => (revision ? revision.id : nil)}.merge options
     unless options[:force_revision]
       options.delete :revision if !options[:revision] || head_revision && options[:revision] == head_revision.id
     end
