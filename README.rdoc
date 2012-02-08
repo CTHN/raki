@@ -1,7 +1,7 @@
 == Raki
 Raki is a extensible wiki written using the Ruby on Rails framework.
-It can use different backends to store pages and attachments or multiple backends for
-different namespaces. It can also have a namespace-specific syntax.
+It can use different backends to store pages and attachments or multiple
+backends for different namespaces. It can also have a namespace-specific syntax.
 
 
 *Authors*
@@ -11,12 +11,14 @@ different namespaces. It can also have a namespace-specific syntax.
 *Contributors*
 * Aaron Mueller
 * Benjamin Schweizer
+* Fabian Fingerle
+* Martin Kirst
 
 
 == Dependencies
 
 === Raki core
-  $ gem install -v=2.3.10 rails
+  $ gem install rails -v=3.1
   $ gem install mime-types
 
 === GIT provider
@@ -30,19 +32,24 @@ different namespaces. It can also have a namespace-specific syntax.
 
 
 == Installation & Configration (core)
-Rename/copy the file <tt>config/database.yml.example</tt> to <tt>config/database.yml</tt> and edit the
-credentials for the database if necessary. Now rename/copy the file
-<tt>config/raki.yml.example</tt> to <tt>config/raki.yml</tt> and edit it to fit your needs.
-Run <tt>rake db:migrate</tt> to create all necessary tables.
+Rename/copy the file <tt>config/database.yml.example</tt> to
+<tt>config/database.yml</tt> and edit the credentials for the database if
+necessary. Now rename/copy the file <tt>config/raki.yml.example</tt> to
+<tt>config/raki.yml</tt> and edit it to fit your needs.  Run <tt>rake
+db:migrate</tt> to create all necessary tables. To generate the precompiled
+JavaScript and CSS files, use <tt>rake assets:precompile</tt> in the production
+mode.
 
-=== Example with GIT as storage, OpenID for authentication and file-based authorization
-Create a GIT repository with <tt>git init --bare /path/to/git-repo</tt>. Now change in
-<tt>config/raki.yml</tt> the path parameter to match the GIT repository you just created.
-Then change the <tt>authenticator</tt> to <tt>openid</tt>. The last step is to rename/copy
-the file <tt>config/permissions.yml.example</tt> to <tt>config/permissions.yml</tt> and
-change the permissions if necessary.
+=== Example with GIT as storage, OpenID for authentication and file-based
+authorization Create a GIT repository with <tt>git init --bare
+/path/to/git-repo</tt>. Now change in <tt>config/raki.yml</tt> the path
+parameter to match the GIT repository you just created.  Then change the
+<tt>authenticator</tt> to <tt>openid</tt>. The last step is to rename/copy the
+file <tt>config/permissions.yml.example</tt> to <tt>config/permissions.yml</tt>
+and change the permissions if necessary.
 
 
 == Run it
   $ touch tmp/restart.txt
   $ script/server
+
