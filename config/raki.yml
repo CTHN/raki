@@ -31,8 +31,10 @@ all: &all
       provider: git
       path: git@github.com:ydkn/cthn_wiki.git
       branch: master
-      refresh: 60
+      # To disable the refresh thread, set it to 0.
+      refresh: 0
       timeout: 600
+      token: somesecrettoken
       
   parsers:
     :default:

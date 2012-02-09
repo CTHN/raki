@@ -57,7 +57,7 @@ Raki::Application.routes.draw do
     get '/:page' => 'page#view', :constraints => {:page => /[^\/\.]+|\d+\.\d+\.\d+\.\d+/}
   end
   get ':namespace.atom' => 'feed#namespace', :constraints => {:namespace => /[^\/\.]+/}, :as => :feed_namespace
-  get ':namespace' => 'page#redirect_to_indexpage', :constraints => {:namespace => /[^\/\.]+/}
+  get ':namespace' => 'page#redirect_to_indexpage', :constraints => {:namespace => /[^\/\.]+/, :format => :html}
   
   # Root
   root :to => 'page#redirect_to_frontpage'

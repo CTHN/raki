@@ -57,12 +57,20 @@ class GitProvider < Raki::AbstractProvider
       @repo.checkout(@branch) rescue nil
       
       @repo.git_timeout = (params['timeout'] || 10).to_i
-      
-      Thread.new do
-        while true do
-          sleep refresh
-          $stdout.flush
-          git_pull rescue nil
+     
+      # An alternative to the refresh thread is to call the URL
+      # http://<host>/git.pull?namespace=<namespace>&token=<token>
+      # This is usefull for a git post commit hook or to manually trigger the
+      # git pull mechanism. Please use the thread method only if you don't have
+      # any other option or don't have access to the repository to install a
+      # post commit hook.
+      unless refresh.zero?
+        Thread.new do
+          while true do
+            sleep refresh
+            $stdout.flush
+            git_pull rescue nil
+          end
         end
       end
     rescue => e
@@ -157,6 +165,30 @@ class GitProvider < Raki::AbstractProvider
     namespaces
   end
   cache :namespaces
+  
+  
+  def git_push
+    @repo.push('origin', @branch)
+    logger.debug "Pushed to '#{@repo.remotes['origin'][:url]}'"
+  end
+  
+  def git_pull
+    changed_files = @repo.pull('origin', @branch)
+    changed_files.each do |file|
+      logger.debug "Flushing cached data for '#{file}'"
+      flush :exists?
+      flush :page_contents
+      flush :revisions
+      flush :changes
+      flush :namespaces
+    end
+    
+    logger.debug "Pulled from '#{@repo.remotes['origin'][:url]}'"
+  end
+
+  def logger
+    Rails.logger
+  end
 
   private
 
@@ -373,28 +405,4 @@ class GitProvider < Raki::AbstractProvider
     Raki::Authenticator.user_for(:username => commit_author[:name], :email => commit_author[:email])
   end
   cache :user_for, :ttl => 30
-  
-  def git_push
-    @repo.push('origin', @branch)
-    logger.debug "Pushed to '#{@repo.remotes['origin'][:url]}'"
-  end
-  
-  def git_pull
-    changed_files = @repo.pull('origin', @branch)
-    changed_files.each do |file|
-      logger.debug "Flushing cached data for '#{file}'"
-      flush :exists?
-      flush :page_contents
-      flush :revisions
-      flush :changes
-      flush :namespaces
-    end
-    
-    logger.debug "Pulled from '#{@repo.remotes['origin'][:url]}'"
-  end
-
-  def logger
-    Rails.logger
-  end
-  
 end
