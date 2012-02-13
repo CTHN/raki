@@ -225,17 +225,9 @@ class GitRepo
     command += cmds.join(' ')
     command += ' -- ' + args.join(' ') if args && !args.empty?
     command += ' 2>/dev/null' unless RUBY_PLATFORM =~ /mswin/i
-    
-    timeout = options[:timeout] || GIT_TIMEOUT
-    
-    out = ''
-    ret = -1
-    ::Timeout.timeout(timeout) do
-      out = `#{command}`
-      ret = $?.to_i
-    end
-    
-    [out, ret]
+
+    # XXX: No timeout here for the shell commands. So take care what you do!
+    [`#{command}`, $?.to_i]
   rescue => e
     raise GitBinaryError.new e
   end
