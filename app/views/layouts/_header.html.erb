@@ -11,6 +11,10 @@
 <link rel="shortcut icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
 <link rel="icon" type="image/x-icon" href="<%=url_for '/favicon.ico' %>" />
 
+<script src="http://yandex.st/dojo/1.7.1/dojo/dojo.js" type="text/javascript"></script>
+<script src="http://yandex.st/dojo/1.7.1/dojox/gfx.js" type="text/javascript"></script>
+<script src="http://yandex.st/dojo/1.7.1/dojox/gfx/fx.js" type="text/javascript"></script>
+
 <%=auto_discovery_link_tag :rss, {:controller => 'feed', :action => 'global', :only_path => false}, :title => t('feed.global', :app_name => Raki.app_name) %>
 <% if @page %>
   <%=auto_discovery_link_tag(:rss, {:controller => 'feed', :action => 'namespace', :namespace => h(@page.namespace), :only_path => false}, :title => t('feed.namespace', :namespace => h(@page.namespace))) %>
