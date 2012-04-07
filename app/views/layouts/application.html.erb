@@ -118,8 +118,10 @@ dojo.ready(function() {
 		// resize similar size to cthn.de static original
 		layer1.applyTransform(dojox.gfx.matrix.scaleAt(0.6, 0.6, 150, 400));
 	
-		// start fancy animation
-		wackyMovement();
+		// start fancy animation, only on start page
+		if ((""+window.viewUrl).match("cthn$")) {
+			wackyMovement();
+		}
 	} 
 });
 
